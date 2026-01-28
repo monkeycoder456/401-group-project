@@ -1,1 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Roguelike Maze RPG</title>
+<style>
+    body { background:#111; color:white; text-align:center; font-family:Arial; }
+    #stats { margin:10px; font-size:18px; }
+    #maze { display:grid; gap:2px; justify-content:center; margin:auto; }
+    .cell { width:30px; height:30px; }
+    .wall { background:#333; }
+    .path { background:#bbb; }
+    .player { background:dodgerblue; }
+    .power { background:limegreen; }
+    .boss { background:crimson; }
+    .exit { background:gold; }
+</style>
+</head>
+<body>
 
+<h1>🗺️ Roguelike Maze RPG</h1>
+
+<div id="stats">
+    🏰 Floor: <span id="floor">1</span> |
+    ❤️ HP: <span id="hp">10</span> |
+    ⚡ Power: <span id="power">1</span>
+</div>
+
+<div id="maze"></div>
+<p id="message"></p>
+
+<script>
+let floor, size, orbCount, curseCount, powerNeeded;
+let bossPowerBonus = 0;
+let mazeData = [];
+let bossAlive = true;
+
+let player = { x:1, y:1, hp:10, power:1 };
+
+const maze = document.getElementById("maze");
+const message = document.getElementById("message");
+
+/* TILE CODES
+0 path | 1 wall | 2 exit | 3 power | 4 boss | 5 curse
+*/
+
+/* ===== RESET ===== */
+function resetGame() {
+    floor = 1;
+    size = 15;
+    orbCount = 5;
+    curseCount = 3;
+    powerNeeded = 5;
+    bossPowerBonus = 0;
+    bossAlive = true;
+
+    player.hp = 10;
+    player.power = 1;
+    player.x = 1;
+    player.y = 1;
+
+    message.textContent = "💀 You died. Back to Floor 1.";
+
+    generateMaze();
+    placeEntities();
+    drawMaze();
+
+    document.removeEventListener("keydown", controls);
+    document.addEventListener("keydown", controls);
+}
+
+/* ===== MAZE GEN ===== */
+function generateMaze() {
+    mazeData = Array.from({ length: size }, () => Array(size).fill(1));
+
+    function carve(x,y) {
+        mazeData[y][x] = 0;
+        const dirs = [[0,-2],[0,2],[-2,0],[2,0]].sort(() => Math.random()-0.5);
+
+        for (const [dx,dy] of dirs) {
+            const nx=x+dx, ny=y+dy;
+            if (nx>0 && ny>0 && nx<size-1 && ny<size-1 && mazeData[ny][nx]===1) {
+                mazeData[y+dy/2][x+dx/2] = 0;
+                carve(nx,ny);
+            }
+        }
+    }
+    carve(1,1);
+}
+
+/* ===== DEAD ENDS ===== */
+function getDeadEnds() {
+    const ends = [];
+    for (let y=1;y<size-1;y++) {
+        for (let x=1;x<size-1;x++) {
+            if (mazeData[y][x] !== 0) continue;
+            let exits = 0;
+            for (const [dx,dy] of [[0,1],[1,0],[0,-1],[-1,0]]) {
+                if (mazeData[y+dy][x+dx] === 0) exits++;
+            }
+            if (exits === 1) ends.push({x,y});
+        }
+    }
+    return ends;
+}
+
+/* ===== BFS DISTANCE ===== */
+function buildDistanceMap() {
+    const dist = Array.from({length:size},()=>Array(size).fill(-1));
+    const q = [{x:1,y:1}];
+    dist[1][1] = 0;
+
+    while (q.length) {
+        const {x,y} = q.shift();
+        for (const [dx,dy] of [[0,1],[1,0],[0,-1],[-1,0]]) {
+            const nx=x+dx, ny=y+dy;
+            if (mazeData[ny]?.[nx]===0 && dist[ny][nx]===-1) {
+                dist[ny][nx] = dist[y][x]+1;
+                q.push({x:nx,y:ny});
+            }
+        }
+    }
+    return dist;
+}
+
+/* ===== ENTITY PLACEMENT ===== */
+function placeEntities() {
+    const deadEnds = getDeadEnds();
+    const dist = buildDistanceMap();
+
+    deadEnds.sort((a,b)=>dist[b.y][b.x]-dist[a.y][a.x]);
+
+    // Boss at deepest dead end
+    const boss = deadEnds.shift();
+    mazeData[boss.y][boss.x] = 4;
+
+    // Shuffle remaining dead ends
+    deadEnds.sort(() => Math.random()-0.5);
+
+    // Power loot
+    for (let i=0;i<orbCount && deadEnds.length;i++) {
+        const p = deadEnds.shift();
+        mazeData[p.y][p.x] = 3;
+    }
+
+    // Cursed loot
+    for (let i=0;i<curseCount && deadEnds.length;i++) {
+        const c = deadEnds.shift();
+        mazeData[c.y][c.x] = 5;
+    }
+}
+
+/* ===== DRAW ===== */
+function drawMaze() {
+    maze.innerHTML = "";
+    maze.style.gridTemplateColumns = `repeat(${size}, 30px)`;
+
+    mazeData.forEach((row,y)=>{
+        row.forEach((cell,x)=>{
+            const div = document.createElement("div");
+            div.className = "cell";
+
+            if (cell===1) div.classList.add("wall");
+            else if (cell===2) div.classList.add("exit");
+            else if (cell===3) div.classList.add("power");
+            else if (cell===4 && bossAlive) div.classList.add("boss");
+            else if (cell===5) {
+                div.style.background = "purple";
+            } else div.classList.add("path");
+
+            if (player.x===x && player.y===y)
+                div.className = "cell player";
+
+            maze.appendChild(div);
+        });
+    });
+
+    floor.textContent = floor;
+    hp.textContent = player.hp;
+    power.textContent = player.power;
+}
+
+/* ===== GAME LOGIC ===== */
+function fightBoss() {
+    const required = powerNeeded + bossPowerBonus;
+
+    if (player.power >= required) {
+        bossAlive = false;
+        mazeData[player.y][player.x] = 2;
+        message.textContent = "👹 Boss defeated! Exit appears!";
+    } else {
+        player.hp -= 3;
+        message.textContent = `👹 Boss power overwhelms you! (${required} needed)`;
+        if (player.hp <= 0) resetGame();
+    }
+}
+
+function move(dx,dy) {
+    const nx=player.x+dx, ny=player.y+dy;
+    if (mazeData[ny]?.[nx] === 1) return;
+
+    player.x=nx; player.y=ny;
+    const cell = mazeData[ny][nx];
+
+    if (cell===3) {
+        player.power++;
+        mazeData[ny][nx]=0;
+        message.textContent="💎 You feel stronger!";
+    }
+
+    if (cell===5) {
+        bossPowerBonus++;
+        mazeData[ny][nx]=0;
+        message.textContent="🔮 A dark relic empowers the boss...";
+    }
+
+    if (cell===4 && bossAlive) fightBoss();
+
+    if (cell===2 && !bossAlive) {
+        floor++;
+        size+=2;
+        orbCount+=2;
+        curseCount+=1;
+        powerNeeded+=2;
+        bossPowerBonus=0;
+        bossAlive=true;
+
+        player.x=1; player.y=1;
+        generateMaze();
+        placeEntities();
+    }
+
+    drawMaze();
+}
+
+function controls(e) {
+    if (e.key==="ArrowUp") move(0,-1);
+    if (e.key==="ArrowDown") move(0,1);
+    if (e.key==="ArrowLeft") move(-1,0);
+    if (e.key==="ArrowRight") move(1,0);
+}
+
+/* ===== START ===== */
+resetGame();
+</script>
+
+</body>
+</html>
