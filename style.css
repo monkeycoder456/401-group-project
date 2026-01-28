@@ -1,0 +1,29 @@
+.title_container {
+    background-color:#ff0000;
+}
+.game_componets_container{
+    background-color: #0d00ff;
+}
+.game_itslef.container{
+    background-color: #ff00d9;
+}
+.options{
+        background-color: #d9ff00;
+        float:left
+}
+.game_vas{
+        background-color: #ffffff;
+        float:left;
+        width:"400";
+        height:"400";
+}
+.above_all{
+    background-color: aquamarine;
+}
+.button_excitable{
+    background-color: black;
+}
+.debug_display{
+    background-color: #ff0000;
+    float:left
+}
