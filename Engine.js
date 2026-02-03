@@ -1,8 +1,3 @@
-class Layer{
-    constructor(){
-        this.arrayofEntities = []
-    }
-}
 class Entity{
     constructor(row,column,pallets,polygonList){
         this.pos = new coordPair(column,row)
@@ -30,7 +25,7 @@ class Entity{
         this.myAppearance(this.origin.getX(),this.origin.getY())
 
     }
-    myAppearance(pointX,pointY){
+    myAppearance(pointX,pointY,scalex,scaley){
         for (let i = 0; i < this.pallet.length; i++) {
             const color = this.pallet[i];
             ctx.beginPath();
@@ -40,15 +35,15 @@ class Entity{
                 if(n != 0){
                     console.log("Working")
                     console.log("pair",this.polygons[i][n])
-                    let x_part = this.origin.getX() + (this.polygons[i][n][0] * 10)
-                    let y_part = this.origin.getY() + (this.polygons[i][n][1] * 10)
+                    let x_part = this.origin.getX() + (this.polygons[i][n][0] * scalex)
+                    let y_part = this.origin.getY() + (this.polygons[i][n][1] * scaley)
                     ctx.lineTo(x_part,y_part)
                     console.log("the xpart = ", x_part)
                     console.log("the ypart = ", y_part)  
                 }else{
                     console.log("start")
-                    let x_part = this.origin.getX() + (this.polygons[i][n][0] * 10)
-                    let y_part = this.origin.getY() + (this.polygons[i][n][1] * 10)
+                    let x_part = this.origin.getX() + (this.polygons[i][n][0] * scalex)
+                    let y_part = this.origin.getY() + (this.polygons[i][n][1] * scaley)
                     console.log("the xpart = ", x_part)
                     console.log("the ypart = ", y_part)  
                     ctx.lineTo(x_part,y_part)
@@ -65,17 +60,5 @@ class Entity{
     getPos(){
         //gets the position in space, RETURNED AS COORD-PAIR
         return new coordPair(this.row,this.column)
-    }
-}
-// class StaticEnntity extends Entity{
-//     constructor(row,column,pallet,polygonList)
-// }
-// class DynamicEntity extends Entity{
-
-// }
-class VectorImage{
-    constructor(pallet, polygonList){
-        this.pallet = pallet
-        this.polygonList = polygonList
     }
 }
