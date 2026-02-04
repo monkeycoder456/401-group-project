@@ -1,3 +1,2 @@
 # 401-group-project
-the maze related thing
-I see you :eyes:
+so I purged everything because we are moving to godot. if you want the files messsage me in private as I have them saved on my PC.
