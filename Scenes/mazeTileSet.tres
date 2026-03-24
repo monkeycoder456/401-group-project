@@ -1,0 +1,107 @@
+[gd_resource type="TileSet" format=3 uid="uid://bar7kmy2ilng5"]
+
+[ext_resource type="Texture2D" uid="uid://cyvwimx1en8g" path="res://resources/woods.png" id="1_k8a12"]
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_t43m4"]
+tile_data = PackedInt32Array(0, 65537, 6, 65536, 65537, 7, 1, 131073, 6, 65537, 131073, 7)
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_o3fi6"]
+tile_data = PackedInt32Array(0, 0, 0, 65536, 0, 1, 131072, 0, 2, 1, 65536, 0, 65537, 65536, 1, 131073, 65536, 2, 2, 131072, 0, 65538, 131072, 1, 131074, 131072, 2)
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_d0re2"]
+tile_data = PackedInt32Array(0, 196608, 0, 65536, 196608, 1, 1, 262144, 0, 65537, 262144, 1)
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_iwvcx"]
+tile_data = PackedInt32Array(0, 0, 4, 65536, 0, 5, 131072, 0, 6, 196608, 0, 7, 1, 65536, 4, 65537, 65536, 5, 131073, 65536, 6, 196609, 65536, 7, 2, 131072, 4, 65538, 131072, 5, 131074, 131072, 6, 196610, 131072, 7)
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_1o5u7"]
+tile_data = PackedInt32Array(0, 196608, 3, 65536, 196608, 4, 1, 262144, 3, 65537, 262144, 4, 2, 327680, 3, 65538, 327680, 4, 3, 393216, 3, 65539, 393216, 4, 4, 458752, 3, 65540, 458752, 4)
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_38sg4"]
+tile_data = PackedInt32Array(0, 393216, 0, 65536, 393216, 1, 131072, 393216, 2)
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_hul7a"]
+tile_data = PackedInt32Array(0, 327680, 1, 65536, 327680, 2)
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_qaxsj"]
+tile_data = PackedInt32Array(0, 327680, 0)
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_h6rsw"]
+tile_data = PackedInt32Array(0, 196608, 2, 1, 262144, 2)
+
+[sub_resource type="TileMapPattern" id="TileMapPattern_46cd8"]
+tile_data = PackedInt32Array(0, 0, 3, 1, 65536, 3, 2, 131072, 3)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_iwvcx"]
+texture = ExtResource("1_k8a12")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+1:0/0 = 0
+1:0/0/custom_data_3 = true
+2:0/0 = 0
+2:0/0/custom_data_2 = true
+3:0/0 = 0
+3:0/0/custom_data_2 = true
+3:0/0/custom_data_3 = true
+0:1/0 = 0
+0:1/0/custom_data_1 = true
+1:1/0 = 0
+1:1/0/custom_data_1 = true
+1:1/0/custom_data_3 = true
+2:1/0 = 0
+2:1/0/custom_data_1 = true
+2:1/0/custom_data_2 = true
+3:1/0 = 0
+3:1/0/custom_data_1 = true
+3:1/0/custom_data_2 = true
+3:1/0/custom_data_3 = true
+0:2/0 = 0
+0:2/0/custom_data_0 = true
+1:2/0 = 0
+1:2/0/custom_data_0 = true
+1:2/0/custom_data_3 = true
+2:2/0 = 0
+2:2/0/custom_data_0 = true
+2:2/0/custom_data_2 = true
+3:2/0 = 0
+3:2/0/custom_data_0 = true
+3:2/0/custom_data_2 = true
+3:2/0/custom_data_3 = true
+0:3/0 = 0
+0:3/0/custom_data_0 = true
+0:3/0/custom_data_1 = true
+1:3/0 = 0
+1:3/0/custom_data_0 = true
+1:3/0/custom_data_1 = true
+1:3/0/custom_data_3 = true
+2:3/0 = 0
+2:3/0/custom_data_0 = true
+2:3/0/custom_data_1 = true
+2:3/0/custom_data_2 = true
+3:3/0 = 0
+3:3/0/custom_data_0 = true
+3:3/0/custom_data_1 = true
+3:3/0/custom_data_2 = true
+3:3/0/custom_data_3 = true
+
+[resource]
+tile_size = Vector2i(32, 32)
+custom_data_layer_0/name = "N"
+custom_data_layer_0/type = 1
+custom_data_layer_1/name = "S"
+custom_data_layer_1/type = 1
+custom_data_layer_2/name = "E"
+custom_data_layer_2/type = 1
+custom_data_layer_3/name = "W"
+custom_data_layer_3/type = 1
+sources/1 = SubResource("TileSetAtlasSource_iwvcx")
+pattern_0 = SubResource("TileMapPattern_t43m4")
+pattern_1 = SubResource("TileMapPattern_o3fi6")
+pattern_2 = SubResource("TileMapPattern_d0re2")
+pattern_3 = SubResource("TileMapPattern_iwvcx")
+pattern_4 = SubResource("TileMapPattern_1o5u7")
+pattern_5 = SubResource("TileMapPattern_38sg4")
+pattern_6 = SubResource("TileMapPattern_hul7a")
+pattern_7 = SubResource("TileMapPattern_qaxsj")
+pattern_8 = SubResource("TileMapPattern_h6rsw")
+pattern_9 = SubResource("TileMapPattern_46cd8")

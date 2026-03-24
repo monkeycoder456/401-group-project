@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://bl2ynyfu177np"]
+
+[ext_resource type="Script" uid="uid://cuutihpba88yv" path="res://EnemyHandler.gd" id="1_r8qpu"]
+
+[node name="Label" type="Label" unique_id=1459483699]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "enemy handler"
+script = ExtResource("1_r8qpu")
+
+[node name="Timer" type="Timer" parent="." unique_id=1162429987]
