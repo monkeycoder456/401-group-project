@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://ci60nnfcgql23"]
+
+[ext_resource type="Script" uid="uid://dqnh7q32k2wiv" path="res://crate.gd" id="1_dwt0d"]
+[ext_resource type="Texture2D" uid="uid://cygwc8vnflbd1" path="res://resources/Breakable chest.png" id="2_kn6iu"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dwt0d"]
+atlas = ExtResource("2_kn6iu")
+region = Rect2(30, 0, 30, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kn6iu"]
+atlas = ExtResource("2_kn6iu")
+region = Rect2(0, 0, 30, 30)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_pji31"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dwt0d")
+}],
+"loop": true,
+"name": &"Broken",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kn6iu")
+}],
+"loop": true,
+"name": &"notBroken",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dfg3k"]
+size = Vector2(25.5, 25.5)
+
+[node name="Crate" type="Node2D" unique_id=1557790764]
+script = ExtResource("1_dwt0d")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=333287782]
+sprite_frames = SubResource("SpriteFrames_pji31")
+animation = &"Broken"
+
+[node name="breakable area" type="Area2D" parent="." unique_id=1576322677]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="breakable area" unique_id=376267760]
+position = Vector2(-1, -1)
+shape = SubResource("RectangleShape2D_dfg3k")
+
+[connection signal="area_shape_entered" from="breakable area" to="." method="_on_breakable_area_area_shape_entered"]
+[connection signal="body_entered" from="breakable area" to="." method="_on_breakable_area_body_entered"]
+[connection signal="body_exited" from="breakable area" to="." method="_on_breakable_area_body_exited"]
+[connection signal="body_shape_exited" from="breakable area" to="." method="_on_breakable_area_body_shape_exited"]
