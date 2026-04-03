@@ -1,11 +1,8 @@
 [gd_scene format=3 uid="uid://bl2ynyfu177np"]
 
-[ext_resource type="Script" uid="uid://cuutihpba88yv" path="res://EnemyHandler.gd" id="1_r8qpu"]
+[ext_resource type="Script" uid="uid://shloqcvutgtn" path="res://code/enemyHandler.gd" id="1_r8qpu"]
+[ext_resource type="Texture2D" uid="uid://d0soxo30lqdar" path="res://resources/EnemyHandler.png" id="1_toatv"]
 
-[node name="Label" type="Label" unique_id=1459483699]
-offset_right = 40.0
-offset_bottom = 23.0
-text = "enemy handler"
+[node name="EH" type="Sprite2D" unique_id=1851174656]
+texture = ExtResource("1_toatv")
 script = ExtResource("1_r8qpu")
-
-[node name="Timer" type="Timer" parent="." unique_id=1162429987]

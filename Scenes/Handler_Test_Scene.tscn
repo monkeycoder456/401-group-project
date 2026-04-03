@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://cl21w3mndqkro"]
+
+[ext_resource type="PackedScene" uid="uid://blbl7bre6k6ja" path="res://scenes/Mazery.tscn" id="1_wswen"]
+[ext_resource type="PackedScene" uid="uid://5rnt78g41t3w" path="res://scenes/playerHandler.tscn" id="2_o82nm"]
+[ext_resource type="PackedScene" uid="uid://bl2ynyfu177np" path="res://scenes/EnemyHandler.tscn" id="3_42y1s"]
+[ext_resource type="PackedScene" uid="uid://cfeuxo7b4qimo" path="res://scenes/Mummy.tscn" id="4_52iqt"]
+
+[node name="Imaginary root" type="Node2D" unique_id=674033417]
+
+[node name="Mazery" parent="." unique_id=1400953967 instance=ExtResource("1_wswen")]
+
+[node name="PH" parent="Mazery" unique_id=1639394247 instance=ExtResource("2_o82nm")]
+position = Vector2(-57, 54)
+
+[node name="EH" parent="Mazery" unique_id=1851174656 instance=ExtResource("3_42y1s")]
+position = Vector2(-58, 317)
+
+[node name="mummy" parent="Mazery" unique_id=430228562 node_paths=PackedStringArray("tilemap") instance=ExtResource("4_52iqt")]
+position = Vector2(1, 0)
+mumLength = 7
+tilemap = NodePath("..")

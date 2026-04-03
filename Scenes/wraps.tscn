@@ -30,6 +30,7 @@ size = Vector2(32, 32)
 
 [node name="wraps" type="CharacterBody2D" unique_id=1844843600]
 script = ExtResource("1_vlesy")
+snap_ahead = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=659552953]
 position = Vector2(0, 4.7683716e-07)

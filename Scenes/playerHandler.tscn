@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://5rnt78g41t3w"]
+
+[ext_resource type="Texture2D" uid="uid://cqpr0hbt1lnom" path="res://resources/PlayerHandler.png" id="1_ts5db"]
+[ext_resource type="Script" uid="uid://beu5ku464ggfd" path="res://code/PlayerHandler.gd" id="2_24kcb"]
+
+[node name="PH" type="Sprite2D" unique_id=1639394247]
+texture = ExtResource("1_ts5db")
+script = ExtResource("2_24kcb")
