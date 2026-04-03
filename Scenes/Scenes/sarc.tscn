@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://dydvlpdhxghnu"]
+
+[ext_resource type="Texture2D" uid="uid://d1k18w22nfb5m" path="res://resources/mummzy.png" id="1_u6hrj"]
+[ext_resource type="Script" uid="uid://b8hguxci5oh81" path="res://code/mummy_segment_caboose.gd" id="1_v4i75"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v4i75"]
+atlas = ExtResource("1_u6hrj")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bjyiw"]
+atlas = ExtResource("1_u6hrj")
+region = Rect2(256, 64, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_8srkl"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v4i75")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bjyiw")
+}],
+"loop": true,
+"name": &"bobble",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8ge5a"]
+size = Vector2(32, 32)
+
+[node name="sarc" type="CharacterBody2D" unique_id=429562690]
+script = ExtResource("1_v4i75")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2085737788]
+position = Vector2(-4.7683716e-07, 0.99999905)
+scale = Vector2(0.46875, 0.46875)
+sprite_frames = SubResource("SpriteFrames_8srkl")
+animation = &"bobble"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=106335971]
+shape = SubResource("RectangleShape2D_8ge5a")

@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://blbl7bre6k6ja"]
+
+[ext_resource type="TileSet" uid="uid://bar7kmy2ilng5" path="res://Scenes/mazeTileSet.tres" id="1_nf58e"]
+[ext_resource type="Script" uid="uid://105avlyf1kfr" path="res://Code/Mazery.gd" id="2_nf58e"]
+[ext_resource type="Texture2D" uid="uid://bhagkb07g2x2l" path="res://resources/MazeTileSheet.png" id="3_pofr5"]
+[ext_resource type="Script" uid="uid://davi6jni4r3y" path="res://Code/MazeryExtraData.gd" id="4_nufry"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_d0re2"]
+texture = ExtResource("3_pofr5")
+texture_region_size = Vector2i(43, 43)
+4:1/0 = 0
+4:1/0/custom_data_0 = true
+4:2/0 = 0
+4:2/0/custom_data_1 = true
+5:2/0 = 0
+5:2/0/custom_data_2 = true
+
+[sub_resource type="TileSet" id="TileSet_iwvcx"]
+tile_size = Vector2i(32, 32)
+custom_data_layer_0/name = "enterance"
+custom_data_layer_0/type = 1
+custom_data_layer_1/name = "exit"
+custom_data_layer_1/type = 1
+custom_data_layer_2/name = "item tile"
+custom_data_layer_2/type = 1
+sources/2 = SubResource("TileSetAtlasSource_d0re2")
+
+[node name="Mazery" type="TileMapLayer" unique_id=1400953967]
+tile_set = ExtResource("1_nf58e")
+script = ExtResource("2_nf58e")
+my_seed = 10
+debug_switch = true
+num_columns = 40
+enter_side_set = "W"
+exit_side_set = "E"
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=225362705]
+position = Vector2(576, 323)
+
+[node name="MazeryExtraData" type="TileMapLayer" parent="." unique_id=698357830]
+tile_set = SubResource("TileSet_iwvcx")
+script = ExtResource("4_nufry")
+
+[connection signal="clearing" from="." to="MazeryExtraData" method="dump_old_assignments"]
+[connection signal="put_something_here_please" from="." to="MazeryExtraData" method="assign"]

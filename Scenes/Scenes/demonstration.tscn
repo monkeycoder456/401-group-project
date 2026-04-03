@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://btd44v14c81ly"]
+
+[ext_resource type="PackedScene" uid="uid://blbl7bre6k6ja" path="res://Scenes/Mazery.tscn" id="1_feswh"]
+[ext_resource type="PackedScene" uid="uid://da71n3iob45to" path="res://Scenes/player.tscn" id="2_vdx7b"]
+[ext_resource type="PackedScene" uid="uid://cfeuxo7b4qimo" path="res://Scenes/Mummy.tscn" id="3_oau8g"]
+[ext_resource type="PackedScene" uid="uid://cltd6ec0l6o05" path="res://Scenes/wolf.tscn" id="4_x45ba"]
+[ext_resource type="PackedScene" uid="uid://tk705nos6fwi" path="res://Scenes/vamp.tscn" id="5_uc27i"]
+[ext_resource type="Script" uid="uid://b8q2xr4yb2jmw" path="res://Code/newvamp.gd" id="6_rbdrt"]
+[ext_resource type="PackedScene" uid="uid://ddst85cu2503n" path="res://Scenes/zombie.tscn" id="7_03isj"]
+
+[node name="Node2D" type="Node2D" unique_id=1396271479]
+
+[node name="Mazery" parent="." unique_id=1400953967 instance=ExtResource("1_feswh")]
+position = Vector2(-1, -1)
+debug_switch = false
+
+[node name="player" parent="Mazery" unique_id=28675795 node_paths=PackedStringArray("tilemap") instance=ExtResource("2_vdx7b")]
+tilemap = NodePath("..")
+
+[node name="mummy" parent="Mazery" unique_id=430228562 node_paths=PackedStringArray("tilemap") instance=ExtResource("3_oau8g")]
+position = Vector2(1542, 358)
+mumLength = 6
+tilemap = NodePath("..")
+
+[node name="wolf" parent="Mazery" unique_id=1287103496 node_paths=PackedStringArray("player", "tilemap") instance=ExtResource("4_x45ba")]
+position = Vector2(1526, 279)
+player = NodePath("../player")
+jump_delay = null
+tilemap = NodePath("..")
+move_speed = null
+
+[node name="Vamp" parent="Mazery" unique_id=1676406655 node_paths=PackedStringArray("player", "tilemap") instance=ExtResource("5_uc27i")]
+position = Vector2(1550, 238)
+script = ExtResource("6_rbdrt")
+player = NodePath("../player")
+recalc_rate = 0.2
+tilemap = NodePath("..")
+
+[node name="zombie" parent="Mazery" unique_id=1930479134 node_paths=PackedStringArray("player", "tilemap") instance=ExtResource("7_03isj")]
+position = Vector2(1187, 647)
+player = NodePath("../player")
+tilemap = NodePath("..")
