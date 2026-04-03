@@ -6,6 +6,7 @@ class_name Mummy extends "res://code/GenericMazeEntity.gd"
 var currentMumLength = 0
 var previous_cell = Vector2i(-1,-1)
 var move_delay = 0.0
+var random_targ = Vector2i(-1,-1)
 
 signal create_new_seg
 signal move_ahead
@@ -49,8 +50,13 @@ func _start_wander():
 	if possible_dirs.size() == 2:
 		if last_dir != Vector2i.ZERO and possible_dirs.has(last_dir):
 			dir = last_dir
+		#we need another check for corners. this is so we do not double back
 		else:
-			dir = possible_dirs.pick_random()
+			#being here means that our last direction isn't an option
+			#but the available options is still only 2
+			var filtered_dirs = possible_dirs.duplicate()
+			filtered_dirs.erase(-last_dir)
+			dir = filtered_dirs.pick_random()
 	else:
 		var filtered_dirs = possible_dirs.duplicate()
 
@@ -63,7 +69,7 @@ func _start_wander():
 		dir = filtered_dirs.pick_random()
 
 	last_dir = dir
-
+	
 	current_cell += dir
 	var prev_cell = current_cell
 	#signal emit zone

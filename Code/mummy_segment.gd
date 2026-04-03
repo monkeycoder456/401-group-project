@@ -7,6 +7,7 @@ var mum_length : int
 var old_position : Vector2i
 var has_tail = false
 var alreadyHandledShit = false
+@export var snap_ahead := false
 
 signal move_ahead_seg
 signal create_new_seg
@@ -31,8 +32,10 @@ func _physics_process(delta):
 	#print("my ID is :", self)
 	#print("Do I have a tail? ", has_tail, "MM")
 	if moving:
-		#global_position = global_position.move_toward(target_position ,move_speed * delta)
-		global_position = target_position
+		if snap_ahead == false:
+			global_position = global_position.move_toward(target_position ,move_speed * delta)
+		else:
+			global_position = target_position
 		_followInFront()
 		#print("segment emitting signal, OLD, NEW: ", old_position," ", tilemap.local_to_map(target_position))
 		$AnimatedSprite2D.play("bobble")

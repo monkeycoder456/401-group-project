@@ -17,13 +17,18 @@ const DIRS: Dictionary[Vector2i, String] = {
 }
 
 func _ready():
-	print("I am waiting")
-	spawn_tile = await get_parent().spawn_enemies
-	print("done waiting")
-	print("My spawn tile:", spawn_tile)
-	current_cell = spawn_tile
-	target_position = tilemap.map_to_local(current_cell)
-	global_position = tilemap.map_to_local(current_cell)
+	#NOTE: this line is to prevent insta-crash.
+	if get_parent() is Mazery or get_parent() is enemyHandler:
+		print("I am waiting")
+		spawn_tile = await get_parent().spawn_enemies
+		print("done waiting")
+		print("My spawn tile:", spawn_tile)
+		current_cell = spawn_tile
+		target_position = tilemap.map_to_local(current_cell)
+		global_position = tilemap.map_to_local(current_cell)
+	else:
+		print("unable to act...")
+		process_mode = Node.PROCESS_MODE_DISABLED
 
 func _physics_process(_delta):
 

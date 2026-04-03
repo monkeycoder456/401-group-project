@@ -14,6 +14,7 @@ var tJunction = [] #rep with T
 var crossing = [] #rep with X
 var nooks = [] #rep with N
 var junk = [] #reperesented with question mark
+var open = [] #for enemy requesting a tile to run to
 
 
 @export var danger_value := 10
@@ -50,6 +51,7 @@ signal spawn_items
 signal begin_slime
 signal spawn_player
 signal clearing
+signal player_handler
 
 func _ready():
 	
@@ -74,8 +76,21 @@ func _ready():
 	var start_point = $MazeryExtraData.start_tile
 	print(end_point)
 	spawn_player.emit(start_point)
-	#spawn_enemies.emit(end_point)
 	call_deferred("emit_signal","spawn_enemies",end_point)
+	
+	#TRY to get the player handler. if not a child, continue
+	
+	#if you can get the player handler, emit the node to the
+	
+	var supposed_PH = get_node_or_null("PH")
+	if supposed_PH:
+		print("yes player handler")
+		player_handler.emit(supposed_PH)
+		pass
+	else:
+		print("No player handler")
+		pass
+		
 
  #Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -116,6 +131,7 @@ func shapeToVectorPair(topLeft : Vector2i,shapeDimensions : Array):
 
 func _make_me_maze(enterance_side: String,exit_side: String):
 	#fill world with debug tile (le BLANK tile)
+	open.clear()
 	clear()
 	clearing.emit()
 	var rows = num_rows
@@ -219,6 +235,11 @@ func _make_me_maze(enterance_side: String,exit_side: String):
 		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
 		proxy_to_tile_map_layer()
 		#proxy.printMe()
+	#fill the open array
+	#get_used_tiles() to fetch the cells in use
+	#loop with get_cell_data to check for if any of the extra data has a true
+	#if it has a true, put that cell into open
+	#remember that the open array must be cleared when a new maze is generated.
 
 func killer_orphans(start):
 	var killer_tree = Tree_graph.new(start)

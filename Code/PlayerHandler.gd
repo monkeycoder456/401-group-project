@@ -8,7 +8,10 @@ var player_scene = preload("res://scenes/player.tscn")
 
 var my_player : Node
 
+
 signal spawn_player
+signal player_node
+
 #the player handler's job is to:
 
 #create the player on game start
@@ -20,15 +23,14 @@ signal spawn_player
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	print("initiating...")
-	set_modulate(Color(0.366, 0.369, 0.366, 1.0))
-	get_parent().spawn_player.connect(_set_spawn_point_spawn_player)
-	get_parent().clearing.connect(_clean_up_player)
-	#var data = await get_parent().spawn_player
-	#
-	#set_modulate(Color(1.0, 1.0, 1.0, 1.0))
-	#print("active, got data: ",data)
-	pass # Replace with function body.
+	if get_parent() is Mazery:
+		print("initiating...")
+		set_modulate(Color(0.366, 0.369, 0.366, 1.0))
+		get_parent().spawn_player.connect(_set_spawn_point_spawn_player)
+		get_parent().clearing.connect(_clean_up_player)
+		#this it to give the data over to enemy handler
+	else:
+		print("alone...")
 
 func _clean_up_player():
 	#this function will set the player back to start
@@ -60,6 +62,8 @@ func _set_spawn_point_spawn_player(location : Vector2i):
 	my_player.tilemap = the_Maze
 	add_child(my_player)
 	spawn_player.emit(player_spawn_point)
+	print("emitting signal of player")
+	call_deferred("emit_signal","player_node",my_player)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
