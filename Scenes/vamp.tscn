@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://tk705nos6fwi"]
 
-[ext_resource type="Script" uid="uid://bvxggnohwil8w" path="res://code/vampScripts.gd" id="1_0rd3w"]
+[ext_resource type="Script" uid="uid://bvt84hxv8iedt" path="res://code/vampire.gd" id="1_0rd3w"]
 [ext_resource type="Texture2D" uid="uid://duv6vfy7xi6q4" path="res://resources/vamp prop.png" id="2_uyva2"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_iupjv"]
