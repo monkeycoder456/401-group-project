@@ -1,5 +1,4 @@
-class_name BasicZombie
-extends GenericMazeEntity
+class_name BasicZombie extends GenericMazeEntity
 
 @export var player: CharacterBody2D
 @export var move_delay := 0.0
@@ -52,7 +51,9 @@ func _start_wander():
 		if last_dir != Vector2i.ZERO and possible_dirs.has(last_dir):
 			dir = last_dir
 		else:
-			dir = possible_dirs.pick_random()
+			var filtered_dirs = possible_dirs.duplicate()
+			filtered_dirs.erase(-last_dir)
+			dir = filtered_dirs.pick_random()
 
 	else:
 		var filtered := possible_dirs.duplicate()

@@ -55,7 +55,7 @@ signal player_handler
 
 func _ready():
 	
-	print("I have entered scene tree: maze")
+	#print("I have entered scene tree: maze")
 	if my_seed == 0:
 		var new_seed  = randi_range(0,1000)
 		seed(new_seed)
@@ -74,9 +74,9 @@ func _ready():
 	
 	var end_point = $MazeryExtraData.end_tile
 	var start_point = $MazeryExtraData.start_tile
-	print(end_point)
+	#print(end_point)
 	spawn_player.emit(start_point)
-	call_deferred("emit_signal","spawn_enemies",end_point)
+	call_deferred("emit_signal","spawn_enemies",end_point, danger_value)
 	
 	#TRY to get the player handler. if not a child, continue
 	
@@ -84,11 +84,11 @@ func _ready():
 	
 	var supposed_PH = get_node_or_null("PH")
 	if supposed_PH:
-		print("yes player handler")
+		#print("yes player handler")
 		player_handler.emit(supposed_PH)
 		pass
 	else:
-		print("No player handler")
+		#print("No player handler")
 		pass
 		
 

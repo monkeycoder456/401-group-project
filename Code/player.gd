@@ -9,6 +9,7 @@ func _ready():
 	current_cell = await get_parent().spawn_player
 	print("My current_cell is: ", current_cell)
 	target_position = tilemap.map_to_local(current_cell)
+	global_position = target_position
 	print("player done waiting")
 	pass
 
