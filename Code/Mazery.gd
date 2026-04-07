@@ -129,11 +129,17 @@ func shapeToVectorPair(topLeft : Vector2i,shapeDimensions : Array):
 	var bottomRight = Vector2i(topLeft.x + shapeDimensions[0], topLeft.y + shapeDimensions[1])
 	return [topLeft, bottomRight]
 
+func _make_me_maze_again(enterance_side,exit_side):
+	_make_me_maze(enterance_side,exit_side)
+	var end_point = $MazeryExtraData.end_tile
+	var start_point = $MazeryExtraData.start_tile
+	#print(end_point)
+	spawn_player.emit(start_point)
+	call_deferred("emit_signal","spawn_enemies",end_point, danger_value)
+
 func _make_me_maze(enterance_side: String,exit_side: String):
 	#fill world with debug tile (le BLANK tile)
-	open.clear()
 	clear()
-	clearing.emit()
 	var rows = num_rows
 	var columns = num_columns
 	proxy = tilemapproxy.new(rows,columns)
@@ -240,6 +246,9 @@ func _make_me_maze(enterance_side: String,exit_side: String):
 	#loop with get_cell_data to check for if any of the extra data has a true
 	#if it has a true, put that cell into open
 	#remember that the open array must be cleared when a new maze is generated.
+	var exit_node = get_node("exit_zone")
+	print("exit_node: ", exit_node)
+	exit_node.global_position = map_to_local($MazeryExtraData.end_tile)
 
 func killer_orphans(start):
 	var killer_tree = Tree_graph.new(start)
@@ -707,3 +716,22 @@ func attaching_enterance_or_exit(exit_or_enterance: bool,face : String):
 		elif exit_or_enterance == true:
 			put_something_here_please.emit(spout_vect, Vector2i(4,2))
 	pass
+
+
+func _on_exit_zone_body_entered(body : Node):
+	if not(body.is_in_group("player")):
+		print("false alarm")
+	else:
+		print("maze clear!!")
+		set_modulate(Color(0.317, 0.715, 0.0, 1.0))
+		clearing.emit()
+		await get_tree().create_timer(2).timeout
+		
+		danger_value += 1
+		_make_me_maze_again(enter_side_set,exit_side_set)
+
+		set_modulate(Color(1.0, 1.0, 1.0, 1.0))
+
+	
+	#NOTE:
+	#here would go all the signals and alerts to the UI

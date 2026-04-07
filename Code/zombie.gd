@@ -1,12 +1,13 @@
 class_name BasicZombie extends GenericMazeEntity
 
 @export var player: CharacterBody2D
-@export var move_delay := 0.0
+@export var move_delay := 0.5
 @export var kill_distance := 16.0
 
 var previous_cell := Vector2i(-1, -1)
 var has_killed := false
 
+#NOTE: I added some move delay so zombies are more languid
 
 func _ready():
 	await super._ready()
