@@ -3,6 +3,8 @@ class_name Player extends GenericMazeEntity
 var lastDirection := Vector2.RIGHT
 var dead := false
 
+signal Im_dead
+
 func _ready():
 	move_speed = 150
 	print("player wait")
@@ -146,15 +148,10 @@ func player_die():
 	print("Player died")
 
 	velocity = Vector2.ZERO
-
-	$AnimatedSprite2D.stop()
-
+	
 	visible = false
 
-	if $CollisionShape2D:
-		$CollisionShape2D.disabled = true
-
-	set_physics_process(false)
+	Im_dead.emit()
 
 
 func getting_new_targ():

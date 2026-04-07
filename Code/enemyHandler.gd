@@ -35,13 +35,16 @@ func _ready():
 		set_modulate(Color(1.0, 1.0, 1.0, 1.0))
 		get_parent().spawn_enemies.connect(_set_spawn_point_spawn_enemies)
 		get_parent().clearing.connect(_clean_up_enemies)
+		the_opposite.player_node.connect(_reset_player_instance)
 	else:
 		print("illegal parent...")
 
 #NOTE: trigggered by signal sent by mazery
 func _set_spawn_point_spawn_enemies(location : Vector2i, danger_value : int):
+	print("enemy array currently: ", enemy_array)
 	#NOTE: why the fuck does only one enemy have the player referennce??
 	print("spawning enemies")
+	set_modulate(Color(0.94, 0.0, 0.264, 1.0))
 	enemy_spawn_point = location
 
 	#make odds array  based on enemy ratio
@@ -53,6 +56,7 @@ func _set_spawn_point_spawn_enemies(location : Vector2i, danger_value : int):
 	#choose an enemy type randomly from enemy odds array
 	#if the enemy is of limited quanity (zombie master and mummy) remove them from the pool
 	for unit in danger_value:
+		set_modulate(Color(1.0, 1.0, 1.0, 1.0))
 		var to_spawn = enemy_odds_array.pick_random()
 		to_spawn = ENEMY_FETCH.get(to_spawn)
 		enemy_array.push_front(to_spawn.instantiate())
@@ -70,12 +74,20 @@ func _set_spawn_point_spawn_enemies(location : Vector2i, danger_value : int):
 	#enemies are just stacked on eachother.
 	#space out spawning
 	for enemy in enemy_array:
+		set_modulate(Color(0.94, 0.0, 0.264, 1.0))
 		await get_tree().create_timer(1).timeout
 		enemy.process_mode = Node.PROCESS_MODE_DISABLED
 		print(enemy)
 		add_child(enemy)
-		enemy.process_mode = Node.PROCESS_MODE_ALWAYS
+		enemy.process_mode = Node.PROCESS_MODE_INHERIT
 		spawn_enemies.emit(enemy_spawn_point)
+	set_modulate(Color(1.0, 1.0, 1.0, 1.0))
+
+func _reset_player_instance(player : Node):
+	#this gives this node the player instance again.
+	#in case the player is deleted.
+	player_reference = player
+	pass
 
 func _spawn_enemy_arbitrary():
 	#this is called during gameplay to replace dead enemies
@@ -84,7 +96,10 @@ func _spawn_enemy_arbitrary():
 #NOTE: triggered by signal sent by mazery
 func _clean_up_enemies():
 	print("cleaning enemies")
-	pass
+	for enemy in enemy_array:
+		enemy.queue_free()
+	set_modulate(Color(0.302, 0.302, 0.302, 1.0))
+	enemy_array.clear()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

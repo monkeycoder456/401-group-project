@@ -31,8 +31,8 @@ func _physics_process(delta):
 
 	_check_player_collision()
 
-	if has_killed:
-		return
+	#if has_killed:
+		#return
 
 	timer += delta
 
