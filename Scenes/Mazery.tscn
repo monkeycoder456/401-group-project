@@ -25,6 +25,8 @@ custom_data_layer_2/name = "item tile"
 custom_data_layer_2/type = 1
 sources/2 = SubResource("TileSetAtlasSource_d0re2")
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_mylm2"]
+
 [node name="Mazery" type="TileMapLayer" unique_id=1400953967]
 tile_set = ExtResource("1_nf58e")
 script = ExtResource("2_nf58e")
@@ -41,5 +43,11 @@ position = Vector2(576, 323)
 tile_set = SubResource("TileSet_iwvcx")
 script = ExtResource("4_nufry")
 
+[node name="exit_zone" type="Area2D" parent="." unique_id=248780964]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="exit_zone" unique_id=1282334880]
+shape = SubResource("CircleShape2D_mylm2")
+
 [connection signal="clearing" from="." to="MazeryExtraData" method="dump_old_assignments"]
 [connection signal="put_something_here_please" from="." to="MazeryExtraData" method="assign"]
+[connection signal="body_entered" from="exit_zone" to="." method="_on_exit_zone_body_entered"]
