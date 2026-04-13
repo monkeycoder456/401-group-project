@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cxblxxqr3qcpd"]
+
+[ext_resource type="Script" uid="uid://bchkcr5p7khy3" path="res://CrateHandler.gd" id="1_uos5m"]
+
+[node name="CrateHandler" type="Sprite2D" unique_id=562013507]
+script = ExtResource("1_uos5m")
