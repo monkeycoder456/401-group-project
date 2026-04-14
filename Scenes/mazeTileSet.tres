@@ -1,6 +1,8 @@
 [gd_resource type="TileSet" format=3 uid="uid://bar7kmy2ilng5"]
 
 [ext_resource type="Texture2D" uid="uid://cyvwimx1en8g" path="res://resources/woods.png" id="1_k8a12"]
+[ext_resource type="Texture2D" uid="uid://bysssiijv16ka" path="res://resources/MazeTileSheet.png" id="1_lt42v"]
+[ext_resource type="Texture2D" uid="uid://6d2644vs2qml" path="res://resources/tree_killer.png" id="3_xgabo"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_t43m4"]
 tile_data = PackedInt32Array(0, 65537, 6, 65536, 65537, 7, 1, 131073, 6, 65537, 131073, 7)
@@ -31,6 +33,12 @@ tile_data = PackedInt32Array(0, 196608, 2, 1, 262144, 2)
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_46cd8"]
 tile_data = PackedInt32Array(0, 0, 3, 1, 65536, 3, 2, 131072, 3)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_xgabo"]
+texture = ExtResource("1_lt42v")
+texture_region_size = Vector2i(38, 34)
+0:9/0 = 0
+8:9/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_iwvcx"]
 texture = ExtResource("1_k8a12")
@@ -84,6 +92,18 @@ texture_region_size = Vector2i(32, 32)
 3:3/0/custom_data_2 = true
 3:3/0/custom_data_3 = true
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_8bwb6"]
+texture = ExtResource("3_xgabo")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+2:1/0 = 0
+3:1/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+
 [resource]
 tile_size = Vector2i(32, 32)
 custom_data_layer_0/name = "N"
@@ -95,6 +115,8 @@ custom_data_layer_2/type = 1
 custom_data_layer_3/name = "W"
 custom_data_layer_3/type = 1
 sources/1 = SubResource("TileSetAtlasSource_iwvcx")
+sources/0 = SubResource("TileSetAtlasSource_xgabo")
+sources/2 = SubResource("TileSetAtlasSource_8bwb6")
 pattern_0 = SubResource("TileMapPattern_t43m4")
 pattern_1 = SubResource("TileMapPattern_o3fi6")
 pattern_2 = SubResource("TileMapPattern_d0re2")

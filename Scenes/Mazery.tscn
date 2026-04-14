@@ -30,14 +30,24 @@ sources/2 = SubResource("TileSetAtlasSource_d0re2")
 [node name="Mazery" type="TileMapLayer" unique_id=1400953967]
 tile_set = ExtResource("1_nf58e")
 script = ExtResource("2_nf58e")
-my_seed = 10
+simplcity = 1
+my_seed = 666
 debug_switch = true
-num_columns = 40
+remove_brother_surrounded = false
+remove_brother_corners = false
+remove_hallway_surrounded = false
+crossings_to_other = false
+remove_orphans = false
+pitty_connections = false
+clean_up_crossings = false
+tree_clean_up = false
 enter_side_set = "W"
 exit_side_set = "E"
+shape_set = "graveyard"
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=225362705]
-position = Vector2(576, 323)
+position = Vector2(869, 505)
+zoom = Vector2(0.8, 0.8)
 
 [node name="MazeryExtraData" type="TileMapLayer" parent="." unique_id=698357830]
 tile_set = SubResource("TileSet_iwvcx")
