@@ -1,95 +1,282 @@
-class_name BasicZombie extends GenericMazeEntity
+class_name Zombie extends GenericMazeEntity
 
 @export var player: CharacterBody2D
-@export var move_delay := 0.5
-@export var kill_distance := 16.0
 
-var previous_cell := Vector2i(-1, -1)
+@export var move_delay := 1.0
+@export var recalc_rate := 0.2
+@export var alert_duration := 10.0
+
+var alerted := false
+var alert_timer := 0.0
 var has_killed := false
 
-#NOTE: I added some move delay so zombies are more languid
+var graph: Dictionary = {}
+var path: Array[Vector2i] = []
+var path_index := 0
+
+var move_timer := 0.0
+var recalc_timer := 0.0
+
+@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+var last_move_dir := Vector2i.DOWN
+
 
 func _ready():
 	await super._ready()
 
+	player = get_tree().get_first_node_in_group("player")
+	add_to_group("zombies")
+
+	if tilemap == null:
+		push_error("Tilemap missing!")
+		return
+
+	_build_graph()
+
+	if player:
+		player.Im_dead.connect(_on_player_died)
+
+
+func _on_player_died():
+	move_delay = 1.0
+	has_killed = false
+
+	alerted = false
+	alert_timer = 0.0
+
+	path.clear()
+	path_index = 0
+	recalc_timer = 0.0
+
+	moving = false
+
 	target_position = tilemap.map_to_local(current_cell)
 	global_position = target_position
 
-	randomize()
 	_start_wander()
 
 
 func _physics_process(delta):
 
+	if player == null:
+		return
 	if moving:
+		var dir = (target_position - global_position).normalized()
+		velocity = dir * move_speed
+		move_and_slide()
 
-		global_position = global_position.move_toward(
-			target_position,
-			move_speed * delta
-		)
-
-		if global_position.distance_to(target_position) < 1:
+		if global_position.distance_to(target_position) < 2:
 			global_position = target_position
 			moving = false
-
-			await get_tree().create_timer(move_delay).timeout
-
-			_start_wander()
+	else:
+		velocity = Vector2.ZERO
 
 	_check_player_collision()
 
+	move_timer += delta
+
+	if alerted:
+		_alert_logic(delta)
+	else:
+		_wander_logic()
+
+	
+
+
+func _wander_logic():
+
+	if move_timer < move_delay:
+		return
+
+	move_timer = 0.0
+	_start_wander()
 
 func _start_wander():
 
-	var possible_dirs := _get_available_dirs()
-
-	if possible_dirs.is_empty():
+	var dirs = _get_available_dirs()
+	if dirs.is_empty():
 		return
 
 	var dir: Vector2i
 
-	if possible_dirs.size() == 2:
-		if last_dir != Vector2i.ZERO and possible_dirs.has(last_dir):
-			dir = last_dir
-		else:
-			var filtered_dirs = possible_dirs.duplicate()
-			filtered_dirs.erase(-last_dir)
-			dir = filtered_dirs.pick_random()
-
+	if last_dir != Vector2i.ZERO and dirs.has(last_dir):
+		dir = last_dir
 	else:
-		var filtered := possible_dirs.duplicate()
-
-		if last_dir != Vector2i.ZERO:
+		var filtered = dirs.duplicate()
+		if filtered.size() > 1:
 			filtered.erase(-last_dir)
-
-		if filtered.is_empty():
-			filtered = possible_dirs
-
 		dir = filtered.pick_random()
 
-	last_dir = dir
-	current_cell += dir
+	if move_in_direction(dir):
+		last_move_dir = dir
+		_update_animation(dir)
+
+func _alert_logic(delta):
+
+	alert_timer += delta
+	recalc_timer += delta
+
+	if alert_timer >= alert_duration:
+		_reset_to_wander()
+		return
+
+	if recalc_timer >= recalc_rate:
+		recalc_timer = 0.0
+		_recalculate_path()
+
+	if not is_moving() and move_timer >= move_delay:
+		move_timer = 0.0
+		_follow_path()
+
+
+func _follow_path():
+
+	if path.is_empty():
+		_recalculate_path()
+		return
+
+	if path_index >= path.size() - 1:
+		_recalculate_path()
+		return
+
+	var next_cell = path[path_index + 1]
+	var dir = _normalize_dir(next_cell - current_cell)
+
+	if move_in_direction(dir):
+		last_move_dir = dir
+		path_index += 1
+		_update_animation(dir)
+	else:
+		_recalculate_path()
+
+
+func _recalculate_path():
+
+	if player == null:
+		return
+
+	var start = current_cell
+	var goal = player.current_cell
+
+	path = _bfs(start, goal)
+	path_index = 0
+
+
+func _bfs(start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
+
+	var queue = [start]
+	var came_from = {start: null}
+
+	while queue.size() > 0:
+
+		var current = queue.pop_front()
+
+		if current == goal:
+			break
+
+		if not graph.has(current):
+			continue
+
+		for next in graph[current]:
+			if next in came_from:
+				continue
+
+			came_from[next] = current
+			queue.append(next)
+
+	if goal not in came_from:
+		return []
+
+	var result: Array[Vector2i] = []
+	var cur = goal
+
+	while cur != null:
+		result.push_front(cur)
+		cur = came_from[cur]
+
+	return result
+
+
+func _build_graph():
+
+	graph.clear()
+
+	var dirs = {
+		Vector2i.UP: "N",
+		Vector2i.DOWN: "S",
+		Vector2i.LEFT: "W",
+		Vector2i.RIGHT: "E"
+	}
+
+	var cells = tilemap.get_used_cells()
+
+	for cell in cells:
+
+		var data = tilemap.get_cell_tile_data(cell)
+		if data == null:
+			continue
+
+		graph[cell] = []
+
+		for dir in dirs.keys():
+
+			if not data.get_custom_data(dirs[dir]):
+				continue
+
+			var neighbor = cell + dir
+
+			if cells.has(neighbor):
+				graph[cell].append(neighbor)
+
+
+func _reset_to_wander():
+	move_delay = 1.0
+	alerted = false
+	alert_timer = 0.0
+
+	path.clear()
+	path_index = 0
+	recalc_timer = 0.0
+
+	moving = false
 
 	target_position = tilemap.map_to_local(current_cell)
-	moving = true
+	global_position = target_position
 
-	_play_animation(dir)
+	_start_wander()
 
-func _get_available_dirs() -> Array[Vector2i]:
 
-	var results: Array[Vector2i] = []
-	var tile_data := tilemap.get_cell_tile_data(current_cell)
+func _update_animation(dir: Vector2i):
+	if sprite == null:
+		return
+	print("am I alerted? : ", alerted)
+	if alerted:
+		print("I AM IN THE ALERT ANIM AREA")
+		if dir == Vector2i.UP:
+			sprite.play("alertup")
+		elif dir == Vector2i.DOWN:
+			sprite.play("alertdown")
+		elif dir == Vector2i.LEFT:
+			sprite.play("alertleft")
+		elif dir == Vector2i.RIGHT:
+			sprite.play("alertright")
+	else:
+		if dir == Vector2i.UP:
+			sprite.play("up")
+		elif dir == Vector2i.DOWN:
+			sprite.play("down")
+		elif dir == Vector2i.LEFT:
+			sprite.play("left")
+		elif dir == Vector2i.RIGHT:
+			sprite.play("right")
+	print(sprite.animation)
 
-	if tile_data == null:
-		return results
+func _normalize_dir(dir: Vector2i) -> Vector2i:
 
-	for dir in DIRS.keys():
-		var key := DIRS[dir]
-
-		if tile_data.get_custom_data(key):
-			results.append(dir)
-
-	return results
+	if abs(dir.x) > abs(dir.y):
+		return Vector2i(sign(dir.x), 0)
+	else:
+		return Vector2i(0, sign(dir.y))
 
 
 func _check_player_collision():
@@ -97,23 +284,18 @@ func _check_player_collision():
 	if player == null or has_killed:
 		return
 
-	if global_position.distance_to(player.global_position) < kill_distance:
+	if global_position.distance_to(player.global_position) < 10:
 		has_killed = true
 		player.player_die()
 
 
-func _play_animation(dir: Vector2i):
+func alert_to_player(player_cell: Vector2i):
+	move_delay = 0.0
+	alerted = true
+	alert_timer = 0.0
 
-	var anim := $AnimatedSprite2D
-
-	match dir:
-		Vector2i.UP:
-			anim.play("up")
-		Vector2i.DOWN:
-			anim.play("down")
-		Vector2i.LEFT:
-			anim.play("left")
-		Vector2i.RIGHT:
-			anim.play("right")
-		_:
-			anim.play("idle")
+	path = _bfs(current_cell, player_cell)
+	path_index = 0
+	
+	_update_animation(last_move_dir)
+	
