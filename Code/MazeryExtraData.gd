@@ -5,6 +5,7 @@ var end_tile := Vector2i(-1,-1)
 
 const start_set = Vector2i(4,1)
 const end_set = Vector2i(4,2)
+const center_set = Vector2i(5,2)
 
 signal data_train
 
@@ -22,7 +23,11 @@ func assign(where :Vector2i, what: Vector2i):
 		start_tile = where
 	elif what == end_set:
 		end_tile = where
+	else:
+		pass
 	set_cell(where,2,what)
+
+		
 	
 func dump_old_assignments():
 	start_tile = Vector2i(-1,-1)

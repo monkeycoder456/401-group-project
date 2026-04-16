@@ -14,7 +14,17 @@ var tJunction = [] #rep with T
 var crossing = [] #rep with X
 var nooks = [] #rep with N
 var junk = [] #reperesented with question mark
-var open = [] #for enemy requesting a tile to run to
+
+#check to see if in editor patterns are accessable
+#if not: at instantiation quickly make patterns and save them
+
+
+
+var woods_patterns  = []
+var woods_misc_tiles = []
+var grave_misc_patterns = []
+var grave_misc_tiles = []
+
 
 @export var simplcity := 2
 '''the above variable is for how many times the tree cleaner will slim the maze down'''
@@ -33,6 +43,7 @@ var open = [] #for enemy requesting a tile to run to
 @export var remake_if_unsolvable := true
 @export var num_rows := 20
 @export var num_columns := 20
+@export var set_to_use : int
 @export_enum("N", "S", "E","W") var enter_side_set: String
 @export_enum("N", "S", "E","W") var exit_side_set: String
 @export_enum("generic","woods","graveyard","house") var shape_set: String
@@ -53,6 +64,25 @@ var WOODS_SHAPES = {"Square3"=[3,3],"Rectangle34"=[3,4],"Rectangle43"=[4,3],"Squ
 var GRAVE_SHAPES = {"square3"=[3,3],"square4"=[4,4],"rectangle54"=[5,4],"rectangle45"=[4,5],"Rectangle61"=[6,1],"Rectangle16"=[1,6],"dittoRectangle61"=[6,1],"dittoRectangle16"=[1,6]}
 var HOUSE_SHAPES = {"Square3"=[3,3],"Square4"=[4,4],"Rectangle62"=[6,2],"Rectangle26"=[2,6],"dittoSquare3"=[3,3],"dittoSquare4"=[4,4]}
 var MAZE_SIZES = {"generic" : [40,20],"woods" : [40,30],"graveyard" : [40,20],"house" : [20,20]}
+var what_set = {"generic":1,"woods":1,"graveyard":2,"house":1}
+var what_mini_set = {"woods":15,"graveyard":14,"house":13}
+
+var decorations = {"graveyard" : 
+	{Vector2i(2,2):[12,15],
+	Vector2i(4,2):[27],
+	Vector2i(4,1):[29],
+	Vector2i(1,3):[14,24,25],
+	Vector2i(1,2):[21,22,23,30,31],
+	Vector2i(2,3):[16],
+	Vector2i(3,2):[19],
+	Vector2i(3,1):[13,20,28,32]}
+	,"woods":
+	{Vector2i(4,2):[2],
+	Vector2i(3,2):[9,8],
+	Vector2i(2,1):[5,6,10,26],
+	Vector2i(2,2):[3,4,7,11],
+	Vector2i(1,2):[0,1,17,18]}}
+
 #NOTE: woods creation pipeline; remove brother surround, remove brother corners
 #NOTE: grave creation pipeline; remve brother surround
 #NOTE: house creation pipeline; 
@@ -61,12 +91,23 @@ var MAZE_SIZES = {"generic" : [40,20],"woods" : [40,30],"graveyard" : [40,20],"h
 signal put_something_here_please
 signal spawn_enemies
 signal spawn_items
-signal begin_slime
 signal spawn_player
 signal clearing
 signal player_handler
 
 func _ready():
+	#NOTE: you must make all patterns by hand :skull:
+	#before game start have all patterns on the grid organized neatly
+	#mazery will create patterns and store them in the appropriate member
+	#once patterns are made we can just overwrite the junk
+	
+	#just use "get_pattern()" on hard coded locations
+	#do this a bunch of times so uh, its gonna be a little slow
+	
+	#NOTE: check to see if this is applicable and works.
+	#DEADLINE IS APPROACHING!!!
+	
+	#_create_patterns()
 	
 	#print("I have entered scene tree: maze")
 	if my_seed == 0:
@@ -99,7 +140,9 @@ func _ready():
 				pass
 	else:
 		_make_me_maze(enter_side_set,exit_side_set,shape_set)
-	proxy_to_tile_map_layer()
+	proxy_to_tile_map_layer(set_to_use)
+	#_use_pattern()
+	place_fluff(shape_set)
 	#print(get_children())
 	#print(get_child(1))
 	#print($MazeryExtraData)
@@ -109,6 +152,7 @@ func _ready():
 	#print(end_point)
 	spawn_player.emit(start_point)
 	call_deferred("emit_signal","spawn_enemies",end_point, danger_value)
+	spawn_items.emit()
 	
 	#TRY to get the player handler. if not a child, continue
 	
@@ -122,6 +166,135 @@ func _ready():
 	else:
 		#print("No player handler")
 		pass
+	
+
+func place_fluff(shape_sett):
+	#put 3-5 layers of blank tiles around the maze
+	#for north and south face just do an offset run
+	
+	#for east and west face do the same but be warey of ruining shit
+	for row in range(-1,-6,-1):
+		for column in range(-6, MAZE_SIZES.get(shape_sett)[0] + 6):
+			set_cell(Vector2i(column,row),what_set.get(shape_sett),Vector2i(0,0))
+	for row in range(MAZE_SIZES.get(shape_sett)[1],MAZE_SIZES.get(shape_sett)[1] + 6):
+		for column in range(-6, MAZE_SIZES.get(shape_sett)[0] + 6):
+			set_cell(Vector2i(column,row),what_set.get(shape_sett),Vector2i(0,0))
+	
+	#WEST <- AKA X = NEG
+	for row in range(0,MAZE_SIZES.get(shape_sett)[1]):
+		for column in range(-1,-6,-1):
+			if Vector2i(column,row) != $MazeryExtraData.start_tile:
+				set_cell(Vector2i(column,row),what_set.get(shape_sett),Vector2i(0,0))
+	
+	#EAST -> AKA X = POS
+	for row in range(0,MAZE_SIZES.get(shape_sett)[1]):
+		for column in range(MAZE_SIZES.get(shape_sett)[0], MAZE_SIZES.get(shape_sett)[0] + 6):
+			if Vector2i(column,row) != $MazeryExtraData.end_tile:
+				set_cell(Vector2i(column,row),what_set.get(shape_sett),Vector2i(0,0))
+	
+	#for ease this function will also correct the incorrect appearances of enterance and exit
+	#WE WILL ALWAYS ASSUME THAT ENTERANCE WEST, EXIT NORTH
+	#NO TIME !!!
+	set_cell($MazeryExtraData.start_tile,what_set.get(shape_sett),Vector2i(2,0))
+	set_cell($MazeryExtraData.end_tile,what_set.get(shape_sett),Vector2i(1,0))
+	
+	#HACK: this function will also place all the pretty map things
+	
+	#get a list containg all tiles that are NOT used in the maze (aka have no maze relvant data)
+	#	this can be doen with filtering if they have a true in them or not
+	
+	#once there try to place the largest decorative items first (picking randomly from a pool)
+	#once you attempted to stuff as many in, try second largest, then third... etc
+	#any remaining tiles will have a coin flip to if they are given a decoration or not.
+	
+	var every_tile = get_used_cells()
+	var non_used = every_tile.filter(decoration_filter)
+	non_used.sort()
+	var decor_possible_cells = non_used.filter(not_a_decor_cell)
+	
+	var dict_to_use : Dictionary
+	
+	print("using shapeset: ",shape_set)
+	dict_to_use = decorations.get(shape_set)
+	var shape_descriptions = dict_to_use.keys()
+	shape_descriptions.sort()
+	shape_descriptions.reverse()
+	print("sorted in size order: ", shape_descriptions)
+
+	#with the keys now sorted in decending order, we can now try putting
+	#the largest pattern first
+	#for simplicity, we will only attempt in intervals
+	
+	#to ensure we can place tiles, when trying a coord pair, check if all potential cells are inside NON_USED
+	
+	#decoration cells now have a bool for "decor" so every time a new decorative element is added
+	#calculate a new list of valid places to put things based off the differenc of cells with decor
+	#and not used cells
+	var still_decorating = true
+	#TODO: consider removing FOR loop and replacing it with a WHILE loop so-
+	#index doesn't matter
+	while(still_decorating):
+		#for reccy in shape_descriptions:
+		non_used.shuffle()
+		for cell in non_used:
+			#as time goes on, less cells will be in decor possible cells
+			#do a check here to prevent time loss
+			if decor_possible_cells.has(cell):
+				#check if it, and all possible cells between it and the size of the shape are open (not decorated)
+				#if not, pass
+				var contained_in = []
+				for possible_row in range(cell.y,cell.y + shape_descriptions[0].y):
+					for possible_column in range(cell.x,cell.x + shape_descriptions[0].x):
+						contained_in.append(Vector2i(possible_column,possible_row))
+			#check if all the cells in contained in are in the every_tile array (prevent out of bounds leaks)
+			#check if all the cells in contained in are in the non used array (prevents overwriting maze data)
+			#check if all the cells in contained in are in the decor possible cells (prevents drawing over decor)
+			#if any of the checks fail, move on.
+				#check if contained in has ANY CELLS THAT ARE NOT INSIDE VERY_TILE, if so, return TRUE
+					#the true here means there is a problem (out of bounds)
+				#print("is in bounds: ",!contained_in.any(func(pair): return !every_tile.has(pair)))
+				#print("is not maze: ",!contained_in.any(func(pair): return !non_used.has(pair)))
+				#print("is not decorated: ",!contained_in.any(func(pair): return !decor_possible_cells.has(pair)))
+				if(!contained_in.any(func(pair): return !every_tile.has(pair)) and !contained_in.any(func(pair): return !non_used.has(pair)) and !contained_in.any(func(pair): return !decor_possible_cells.has(pair))):
+					#if we are here, we can actually decorate the "contained in" cels
+					
+					#pick a random index from dict_to_use reccy
+					#past the pattern to the top LEFT (or just cell)
+					#mark all the cells in contained in as deocrated (subtract this array from decor possible cells)
+					var decoration = dict_to_use.get(shape_descriptions[0]).pick_random()
+					set_pattern(cell,self.tile_set.get_pattern(decoration))
+					decor_possible_cells = non_used.filter(not_a_decor_cell)
+					shape_descriptions.shuffle()
+					still_decorating = true
+				pass
+			else:
+				still_decorating = false
+				continue
+	
+	#when you reach here all large decoration has been placed
+	
+	decor_possible_cells = non_used.filter(not_a_decor_cell)
+	decor_possible_cells.shuffle()
+	
+	for cell in decor_possible_cells:
+		if [0,0,0,1].pick_random() == 1:
+			#if 1 in 4 odds passed, place a random 1 tile decoration
+			print("placing mini tile")
+			pass
+		pass
+
+func decoration_filter(cell):
+	var ball = get_cell_tile_data(cell)
+	return not(ball.get_custom_data("N") or ball.get_custom_data("S") or ball.get_custom_data("E") or ball.get_custom_data("W"))
+	#return true to keep
+
+func not_a_decor_cell(cell):
+	var ball = get_cell_tile_data(cell)
+	return not(ball.get_custom_data("Decor"))
+
+#func _use_pattern():
+	##for now use our only pattern
+	#set_pattern(Vector2i(40,20),self.tile_set.get_pattern(21))
 
  #Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -144,7 +317,8 @@ func _process(delta):
 					pass
 		else:
 			_make_me_maze(enter_side_set,exit_side_set,shape_set)
-		proxy_to_tile_map_layer()
+		proxy_to_tile_map_layer(set_to_use)
+		place_fluff(shape_set)
 		var end_point = $MazeryExtraData.end_tile
 		var start_point = $MazeryExtraData.start_tile
 		spawn_player.emit(start_point)
@@ -197,7 +371,9 @@ func _make_me_maze_again(enterance_side,exit_side):
 				pass
 	else:
 		_make_me_maze(enter_side_set,exit_side_set,shape_set)
-	proxy_to_tile_map_layer()
+	proxy_to_tile_map_layer(shape_set)
+	#_use_pattern()
+	place_fluff(shape_set)
 	var end_point = $MazeryExtraData.end_tile
 	var start_point = $MazeryExtraData.start_tile
 	#print(end_point)
@@ -211,22 +387,28 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 	clear()
 	var rows = num_rows
 	var columns = num_columns
+#var what_set = {"generic":0,"woods":1,"graveyard":2,"house":0}
 	match shapeset:
 		"generic":
 			rows = num_rows
 			columns = num_columns
+			set_to_use = what_set.get("generic")
 		"woods":
 			rows = MAZE_SIZES.get("woods")[1]
 			columns = MAZE_SIZES.get("woods")[0]
+			set_to_use = what_set.get("woods")
 		"graveyard":
 			rows = MAZE_SIZES.get("graveyard")[1]
 			columns = MAZE_SIZES.get("graveyard")[0]
+			set_to_use = what_set.get("graveyard")
 		"house":
 			rows = MAZE_SIZES.get("house")[1]
 			columns = MAZE_SIZES.get("house")[0]
+			set_to_use = what_set.get("house")
 		_:
 			rows = num_rows
 			columns = num_columns
+			set_to_use = what_set.get(what_set.keys().pick_random())
 
 	proxy = tilemapproxy.new(rows,columns)
 	blocks = blocklayer.new(rows,columns)
@@ -261,19 +443,19 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 	#print("done with conversion")
 	#proxy.printMe()
 	#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
-	proxy_to_tile_map_layer()
+
 
 	#print("connecting sections")
 	proxy.connect_sections()
 
 	#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
-	proxy_to_tile_map_layer()
+
 
 	if shapeset == "generic" or shapeset == "woods" or shapeset == "graveyard":
 		#print("removing redundent tiles")
 		remove_redundent()
 		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
-		proxy_to_tile_map_layer()
+
 
 	if shapeset == "generic" or shapeset == "woods":
 		#print("classifying tiles")
@@ -281,7 +463,7 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 		#print("looking for bad patter: two coners next to eachother")
 		killer_corner_duos()
 		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
-		proxy_to_tile_map_layer()
+
 		#print("emptying old classified tiles.")
 		dump_old_class()
 	print("IN STEP 2")
@@ -293,7 +475,7 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 		#print("emptying old classified tiles.")
 		dump_old_class()
 		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
-		proxy_to_tile_map_layer()
+
 	if crossings_to_other == true:
 		#print("classifying tiles")
 		tile_discriminator()
@@ -302,7 +484,7 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 		#print("emptying old classified tiles.")
 		dump_old_class()
 		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
-		proxy_to_tile_map_layer()
+
 
 	print("FINISHED FILTERS")
 	#region FORCE CONNECTION TO CENTER IF POSSIBLE
@@ -412,7 +594,7 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 		
 		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
 #region debug comment out
-		proxy_to_tile_map_layer()
+	proxy_to_tile_map_layer(set_to_use)
 	if clean_up_crossings == true:
 		#the pitty connection step added way to many X-ings
 		#get every crossing, preform a flood fill beginning a crossing
@@ -443,7 +625,7 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 		#print("emptying old classified tiles.")
 		dump_old_class()
 		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
-		proxy_to_tile_map_layer()
+		proxy_to_tile_map_layer(set_to_use)
 		#proxy.printMe()
 	#fill the open array
 	#get_used_tiles() to fetch the cells in use
@@ -676,7 +858,7 @@ func inbounds(vect_to_check :Vector2i):
 	else:
 		return true
 
-func proxy_to_tile_map_layer():
+func proxy_to_tile_map_layer(this_set):
 	#for each cell in proxy
 	#use the binary trick i though of [N,S,E,W] => [00,00] => [int,int] => find appropriate tile in tileset
 	#assign the correct tile values
@@ -686,7 +868,10 @@ func proxy_to_tile_map_layer():
 			var NS = binToInt([data[0],data[1]])
 			var EW = binToInt([data[2],data[3]])
 			#print("data ",data," converted into int pair ", binToInt([data[0],data[1]]),binToInt([data[2],data[3]]))
-			set_cell(Vector2i(cell,row),1,Vector2i(EW,NS))
+			if this_set is int:
+				set_cell(Vector2i(cell,row),this_set,Vector2i(EW,NS))
+			else:
+				set_cell(Vector2i(cell,row),what_set.get(this_set),Vector2i(EW,NS))
 	pass
 
 func remove_redundent():
