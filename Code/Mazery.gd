@@ -43,7 +43,7 @@ var grave_misc_tiles = []
 @export var remake_if_unsolvable := true
 @export var num_rows := 20
 @export var num_columns := 20
-@export var set_to_use : int
+var set_to_use : int
 @export_enum("N", "S", "E","W") var enter_side_set: String
 @export_enum("N", "S", "E","W") var exit_side_set: String
 @export_enum("generic","woods","graveyard","house") var shape_set: String
@@ -64,7 +64,7 @@ var WOODS_SHAPES = {"Square3"=[3,3],"Rectangle34"=[3,4],"Rectangle43"=[4,3],"Squ
 var GRAVE_SHAPES = {"square3"=[3,3],"square4"=[4,4],"rectangle54"=[5,4],"rectangle45"=[4,5],"Rectangle61"=[6,1],"Rectangle16"=[1,6],"dittoRectangle61"=[6,1],"dittoRectangle16"=[1,6]}
 var HOUSE_SHAPES = {"Square3"=[3,3],"Square4"=[4,4],"Rectangle62"=[6,2],"Rectangle26"=[2,6],"dittoSquare3"=[3,3],"dittoSquare4"=[4,4]}
 var MAZE_SIZES = {"generic" : [40,20],"woods" : [40,30],"graveyard" : [40,20],"house" : [20,20]}
-var what_set = {"generic":1,"woods":1,"graveyard":2,"house":1}
+var what_set = {"generic":1,"woods":1,"graveyard":2,"house":3}
 var what_mini_set = {"woods":15,"graveyard":14,"house":13}
 
 var decorations = {"graveyard" : 
@@ -81,7 +81,10 @@ var decorations = {"graveyard" :
 	Vector2i(3,2):[9,8],
 	Vector2i(2,1):[5,6,10,26],
 	Vector2i(2,2):[3,4,7,11],
-	Vector2i(1,2):[0,1,17,18]}}
+	Vector2i(1,2):[0,1,17,18]}
+	,"house":{Vector2i(2,2):[33],
+	Vector2i(2,1):[34,35],
+	Vector2i(1,2):[36,37]}}
 
 #NOTE: woods creation pipeline; remove brother surround, remove brother corners
 #NOTE: grave creation pipeline; remve brother surround
@@ -182,7 +185,7 @@ func place_fluff(shape_sett):
 	
 	#WEST <- AKA X = NEG
 	for row in range(0,MAZE_SIZES.get(shape_sett)[1]):
-		for column in range(-1,-6,-1):
+		for column in range(-1,-7,-1):
 			if Vector2i(column,row) != $MazeryExtraData.start_tile:
 				set_cell(Vector2i(column,row),what_set.get(shape_sett),Vector2i(0,0))
 	
@@ -220,6 +223,42 @@ func place_fluff(shape_sett):
 	shape_descriptions.sort()
 	shape_descriptions.reverse()
 	print("sorted in size order: ", shape_descriptions)
+	
+	if shape_set == "house":
+		print("special operation: castle")
+		#create a list of all tiles adjecent to open maze tiles
+		
+		#get a list of all tiles
+		#get a list of all tiles IN maze
+		#create a list of which contains all tiles that have an IN maze neighbor
+		#use a filter func
+		var surrounding = non_used.filter(used_neighbor)
+		var in_maze = every_tile.filter(part_of_maze)
+		#the above arrays are cells we must keep to castle theme
+		var keep_pure = surrounding.duplicate()
+		keep_pure.append_array(in_maze)
+		
+		#print([1, 4, 5, 8].filter(func(number): return number % 2 == 0))
+		var outside = every_tile.filter(func(cell): return !keep_pure.has(cell))
+		
+		for cell in outside:
+			if [0,0,0,1].pick_random() == 1:
+				#if 1 in 4 odds passed, place a random 1 tile decoration
+				print("placing mini tile")
+				set_cell(cell,4,Vector2i(range(0,16).pick_random(),15))
+			else:
+				set_cell(cell,1,Vector2i(0,0))
+			
+		for cell in surrounding:
+			if [0,0,0,1].pick_random() == 1:
+				#if 1 in 4 odds passed, place a random 1 tile decoration
+				print("placing mini tile")
+				set_cell(cell,4,Vector2i(range(0,16).pick_random(),what_mini_set.get(shape_sett)))
+		#15 7 
+		
+		#purely here to exit early
+		
+		return
 
 	#with the keys now sorted in decending order, we can now try putting
 	#the largest pattern first
@@ -280,8 +319,22 @@ func place_fluff(shape_sett):
 		if [0,0,0,1].pick_random() == 1:
 			#if 1 in 4 odds passed, place a random 1 tile decoration
 			print("placing mini tile")
+			set_cell(cell,4,Vector2i(range(0,16).pick_random(),what_mini_set.get(shape_sett)))
 			pass
 		pass
+
+
+func used_neighbor(cell):
+	var neighbors = get_surrounding_cells(cell)
+	return neighbors.any(part_of_maze)
+	pass
+
+func part_of_maze(cell):
+	var ball = get_cell_tile_data(cell)
+	if ball == null:
+		return false
+	return ball.get_custom_data("N") or ball.get_custom_data("S") or ball.get_custom_data("E") or ball.get_custom_data("W")
+	#return true to keep
 
 func decoration_filter(cell):
 	var ball = get_cell_tile_data(cell)
@@ -384,6 +437,10 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 	#NOTE: write an exception for the origin tile so the maze is always connected.
 	
 	#fill world with debug tile (le BLANK tile)
+	if shape_set == "woods":
+		$Camera2D.zoom = Vector2(0.8,0.8)
+	else:
+		$Camera2D.zoom = Vector2(1,1)
 	clear()
 	var rows = num_rows
 	var columns = num_columns
@@ -489,7 +546,7 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 	print("FINISHED FILTERS")
 	#region FORCE CONNECTION TO CENTER IF POSSIBLE
 	#here would go the exception for the origin tile. force it in manually.
-	put_something_here_please.emit(origin_tile, Vector2i(5,2))
+	#put_something_here_please.emit(origin_tile, Vector2i(5,2))
 	#get all open neighbors to the center tile
 	#connect them to center tile
 	#make the center tile the appropriate tile 
@@ -592,6 +649,7 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 		
 		killer_orphans(biggest_tree)
 		
+	$Camera2D.global_position = map_to_local(origin_tile)
 		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
 #region debug comment out
 	proxy_to_tile_map_layer(set_to_use)
@@ -1217,7 +1275,8 @@ func _on_exit_zone_body_entered(body : Node):
 		
 		danger_value += 1
 		_make_me_maze_again(enter_side_set,exit_side_set)
-
+		
+		shape_set = ["woods","graveyard","house"].pick_random()
 		set_modulate(Color(1.0, 1.0, 1.0, 1.0))
 
 	

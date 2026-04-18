@@ -7,8 +7,6 @@ const start_set = Vector2i(4,1)
 const end_set = Vector2i(4,2)
 const center_set = Vector2i(5,2)
 
-signal data_train
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
