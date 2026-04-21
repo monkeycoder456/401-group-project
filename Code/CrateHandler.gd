@@ -2,8 +2,9 @@ class_name CrateHandler extends Sprite2D
 #Exists to span crates at the beginnig of a level
 
 var player_reference : Node
-var the_maze : TileMapLayer
+var the_maze = TileMapLayer
 var an_item : Node
+var rng := RandomNumberGenerator.new()
 
 
 signal spawn_items
@@ -15,14 +16,19 @@ var item_pool = {"coin":coin_path}
 #var chosen_item = item_pool.keys().pick_random()
 
 func _ready():
+	await get_tree().process_frame
+	
 	set_modulate(Color(0.581, 0.454, 0.0, 1.0))
+	rng.randomize()
 	if get_parent() is Mazery:
 		print("Wake up item")
-		
-		the_maze = get_parent()
+		var parent = get_parent()
+		the_maze = parent
 
-		get_parent().spawn_items.connect(_spawnCrates)
-		get_parent().clearing.connect(_DestroyCrate)
+		parent.spawn_items.connect(Callable(self, "_spawnCrates"))
+		parent.clearing.connect(Callable(self, "_DestroyCrate"))
+		#get_parent().spawn_items.connect(_spawnCrates)
+		#get_parent().clearing.connect(_DestroyCrate)
 		
 	else:
 		print("Not the parent")
@@ -40,35 +46,66 @@ func used_filter(cell):
 	else:
 		return false
 
-func _spawnCrates(location, danger_value : int):
+func get_reachable_cells():
+	#Serches for reachable tiles in the maze
+	var start = the_maze.get_node("MazeryExtraData").start_tile
+	
+	var visited := {}
+	var queue := [start]
+	visited[start] = true
+
+	var directions = {
+		"N": Vector2i(0, -1),
+		"S": Vector2i(0, 1),
+		"E": Vector2i(1, 0),
+		"W": Vector2i(-1, 0)
+	}
+
+	while queue.size() > 0:
+		var current = queue.pop_front()
+		var data = the_maze.get_cell_tile_data(current)
+
+		for dir in directions.keys():
+			if data.get_custom_data(dir):
+				var neighbor = current + directions[dir]
+
+				if not visited.has(neighbor):
+					visited[neighbor] = true
+					queue.append(neighbor)
+
+	return visited.keys()
+
+func _spawnCrates():
 #Function should spawn a specific amount of crates
 #The # of crates spawned would be in range of the danger value
 	print("Spawning Crate!")
-
+	var danger_value = the_maze.danger_value
 	
-	for unit in range(danger_value):
+	var reachable_cells = await get_reachable_cells()
+	
+	for unit in range(min(danger_value, reachable_cells.size())):
 		var crate = crate_path.instantiate()
-		crate.add_to_group("crate")
-		get_parent( ).add_child(crate)
-		
-		location = get_open_cells().pick_random()
+		crate.add_to_group("crate") 
+		get_parent().add_child(crate)
+
+		var cell = reachable_cells[rng.randi_range(0, reachable_cells.size() - 1)]
 		crate.myItem = _pickItem()
 		
-		crate.position = the_maze.map_to_local(location)  
-		
+
+		crate.position = the_maze.map_to_local(cell)
+		print("Spawn at cell: ", cell)
 	print("I got the maze reference")
 	
 	set_modulate(Color(0.21, 0.119, 0.33, 1.0))
 
-
-
 func _pickItem():
-		return item_pool.get(item_pool.keys().pick_random())
-
+	var keys = item_pool.keys()
+	return item_pool[keys.pick_random()]
+		
 func _DestroyCrate():
 	print("Clearing crate")
 	
 	get_tree().call_group("crate", "_force_destroy")
+	await get_tree().create_timer(0.5).timeout 
 	
 	set_modulate(Color(0.237, 0.518, 0.187, 1.0))
-	queue_free()
