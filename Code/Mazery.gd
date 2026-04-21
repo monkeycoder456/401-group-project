@@ -18,14 +18,6 @@ var junk = [] #reperesented with question mark
 #check to see if in editor patterns are accessable
 #if not: at instantiation quickly make patterns and save them
 
-
-
-var woods_patterns  = []
-var woods_misc_tiles = []
-var grave_misc_patterns = []
-var grave_misc_tiles = []
-
-
 @export var simplcity := 2
 '''the above variable is for how many times the tree cleaner will slim the maze down'''
 @export var danger_value := 10
@@ -33,13 +25,13 @@ var grave_misc_tiles = []
 @export var debug_switch := false
 @export var remove_brother_surrounded := true
 @export var remove_brother_corners := true
-@export var remove_hallway_surrounded := true
-@export var crossings_to_other := true
+#@export var remove_hallway_surrounded := true
+#@export var crossings_to_other := true
 @export var remove_orphans := true
 @export var attach_hallways := true
-@export var pitty_connections := true
-@export var clean_up_crossings := true
-@export var tree_clean_up := true
+#@export var pitty_connections := true
+#@export var clean_up_crossings := true
+#@export var tree_clean_up := true
 @export var remake_if_unsolvable := true
 @export var num_rows := 20
 @export var num_columns := 20
@@ -323,11 +315,9 @@ func place_fluff(shape_sett):
 			pass
 		pass
 
-
 func used_neighbor(cell):
 	var neighbors = get_surrounding_cells(cell)
 	return neighbors.any(part_of_maze)
-	pass
 
 func part_of_maze(cell):
 	var ball = get_cell_tile_data(cell)
@@ -345,11 +335,6 @@ func not_a_decor_cell(cell):
 	var ball = get_cell_tile_data(cell)
 	return not(ball.get_custom_data("Decor"))
 
-#func _use_pattern():
-	##for now use our only pattern
-	#set_pattern(Vector2i(40,20),self.tile_set.get_pattern(21))
-
- #Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if debug_switch == true and Input.is_action_just_pressed("ui_focus_next"):
 		if remake_if_unsolvable == true:
@@ -510,7 +495,9 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 
 	if shapeset == "generic" or shapeset == "woods" or shapeset == "graveyard":
 		#print("removing redundent tiles")
-		remove_redundent()
+		#remove_redundent()
+		remove_redundant_new()
+
 		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
 
 
@@ -523,24 +510,24 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 
 		#print("emptying old classified tiles.")
 		dump_old_class()
-	print("IN STEP 2")
-	if remove_hallway_surrounded == true:
-		#print("classifying tiles")
-		tile_discriminator()
-		#print("looking for bad pattern: hallways should ALWAYS have polarized neighboors be closed.")
-		killer_hallway_love_handles()
-		#print("emptying old classified tiles.")
-		dump_old_class()
-		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
 
-	if crossings_to_other == true:
-		#print("classifying tiles")
-		tile_discriminator()
-		#print("looking for bad pattern: crossings/X should be T junctions or hallways with exceptions\nmade for crossings with neighbors with connections\nto other blocks")
-		killer_crossings_splitter()
-		#print("emptying old classified tiles.")
-		dump_old_class()
-		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
+	#if remove_hallway_surrounded == true:
+		##print("classifying tiles")
+		#tile_discriminator()
+		##print("looking for bad pattern: hallways should ALWAYS have polarized neighboors be closed.")
+		#killer_hallway_love_handles()
+		##print("emptying old classified tiles.")
+		#dump_old_class()
+		##print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
+
+	#if crossings_to_other == true:
+		##print("classifying tiles")
+		#tile_discriminator()
+		##print("looking for bad pattern: crossings/X should be T junctions or hallways with exceptions\nmade for crossings with neighbors with connections\nto other blocks")
+		#killer_crossings_splitter()
+		##print("emptying old classified tiles.")
+		#dump_old_class()
+		##print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
 
 
 	print("FINISHED FILTERS")
@@ -563,26 +550,27 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 	#remove orphans it to harsh. this can remove basically the whole
 	#fucking maze. we can work around this by forcing connections
 	#between adjecent cells that are NOT connected.
-	if pitty_connections == true:
-		pass
-		#for every tile in the proxy
-		#grab it's neighbors
-		#check if that nieghbor is CARVED but NOT CONNECTED
-		#force a connection anyways.
-		var delta_queue = []
-		for row in proxy.myMatrix.size():
-			for slot in proxy.myMatrix[0].size():
-				#var data = proxy.getpoint(Vector2i(slot,row))
-				for dir in DIRECTIONS:
-					#await get_tree().create_timer(1).timeout
-					var neighbor = Vector2i(slot,row) + DIRECTIONS.get(dir)
-					if inbounds(neighbor) and proxy.carved(Vector2i(slot,row)):
-						var neighborData = proxy.getpoint(neighbor)
-						if proxy.carved(neighbor) and !proxy.connected_to_cell(Vector2i(slot,row),dir):
-							#proxy.carvePath(Vector2i(slot,row),dir)
-							delta_queue.append([Vector2i(slot,row),dir])
-		for entry in delta_queue:
-			proxy.carvePath(entry[0],entry[1])
+	#if pitty_connections == true:
+		#pass
+		##for every tile in the proxy
+		##grab it's neighbors
+		##check if that nieghbor is CARVED but NOT CONNECTED
+		##force a connection anyways.
+		#var delta_queue = []
+		#for row in proxy.myMatrix.size():
+			#for slot in proxy.myMatrix[0].size():
+				##var data = proxy.getpoint(Vector2i(slot,row))
+				#for dir in DIRECTIONS:
+					##await get_tree().create_timer(1).timeout
+					#var neighbor = Vector2i(slot,row) + DIRECTIONS.get(dir)
+					#if inbounds(neighbor) and proxy.carved(Vector2i(slot,row)):
+						#var neighborData = proxy.getpoint(neighbor)
+						#if proxy.carved(neighbor) and !proxy.connected_to_cell(Vector2i(slot,row),dir):
+							##proxy.carvePath(Vector2i(slot,row),dir)
+							#delta_queue.append([Vector2i(slot,row),dir])
+		#for entry in delta_queue:
+			#proxy.carvePath(entry[0],entry[1])
+
 	if remove_orphans == true:
 		var start_tiles = []
 		var made = false
@@ -651,24 +639,23 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 		
 	$Camera2D.global_position = map_to_local(origin_tile)
 		#print("pushing changes to tile map earily: WARNING THIS IS FOR DEBUGGING ONLY")
-#region debug comment out
 	proxy_to_tile_map_layer(set_to_use)
-	if clean_up_crossings == true:
-		#the pitty connection step added way to many X-ings
-		#get every crossing, preform a flood fill beginning a crossing
-		#which is ENTIRELY SURROUNDED BY CARVED CELLS (INCLUDING DIAGONALS)
-		#the flood fill should find other crossing who also have the same 
-		#condition.
-		#tile_discriminator()
-		
-		for cross in crossing:
-			pass
-		#once the flood fill is complete, add all the cells in the flood fill
-		#to an array to mark their deletion.
-		
-		#then uncarve every cell found in the array
-		
-		pass
+	#if clean_up_crossings == true:
+		##the pitty connection step added way to many X-ings
+		##get every crossing, preform a flood fill beginning a crossing
+		##which is ENTIRELY SURROUNDED BY CARVED CELLS (INCLUDING DIAGONALS)
+		##the flood fill should find other crossing who also have the same 
+		##condition.
+		##tile_discriminator()
+		#
+		#for cross in crossing:
+			#pass
+		##once the flood fill is complete, add all the cells in the flood fill
+		##to an array to mark their deletion.
+		#
+		##then uncarve every cell found in the array
+		#
+		#pass
 	if attach_hallways == true:
 		#print("emptying old classified tiles, also there is no need to classify anymore")
 		dump_old_class()
@@ -693,59 +680,59 @@ func _make_me_maze(enterance_side: String,exit_side: String, shapeset : String):
 	var exit_node = get_node("exit_zone")
 	print("exit_node: ", exit_node)
 	exit_node.global_position = map_to_local($MazeryExtraData.end_tile)
-	
-	if tree_clean_up == true:
-	#create a tree, find every leaf
-	#remove every leaf (BUT THE EXIT)
-		var iteration_count = 0
-		var start_tile = $MazeryExtraData.start_tile
-		var untouched_maze_tree = await max_tree_from_here_but_directed_tho(start_tile)
-		var maze_tree = await max_tree_from_here_but_directed_tho(start_tile)
-		print(maze_tree.my_graph)
-		print("I have this many leaves: ",maze_tree.get_all_leaves())
-		for leaf in maze_tree.get_all_leaves():
-			set_cell(leaf,2,Vector2i(1,0))
-		while(maze_tree.get_all_leaves().size() > 1 and iteration_count <simplcity):
-			#the reason for 1 is that we need the exit leaf, it is always a leaf
-			#print("num leaves: ",maze_tree.get_all_leaves().size())
-			var all_leaves = maze_tree.get_all_leaves()
-			for leaf in maze_tree.get_all_leaves():
-				set_cell(leaf,2,Vector2i(3,0))
-				await get_tree().create_timer(0.001).timeout
-			for leaf in all_leaves:
-				if leaf != $MazeryExtraData.end_tile:
-					maze_tree.prune(leaf)
-			iteration_count += 1
-		for node in maze_tree.get_all_nodes_as_list():
-			var num_connections = maze_tree.fetch_arb_node(node).size()
-			match num_connections:
-				1:
-					set_cell(node,2,Vector2i(0,1))
-				2:
-					set_cell(node,2,Vector2i(1,1))
-				3:
-					set_cell(node,2,Vector2i(2,1))
-				4:
-					set_cell(node,2,Vector2i(3,1))
-				_:
-					print("this node thinks he is special")
-					print(node)
-					print(maze_tree.fetch_arb_node(node))
-					print(num_connections)
-			pass
-		#take the difference between untouched and touch
-		var difference = []
-		var untouched_tree_nodes = untouched_maze_tree.get_all_nodes_as_list()
-		var touched_tree_nodes = maze_tree.get_all_nodes_as_list()
-		#for every element in the larger array, check if it is NOT in smaller array
-		#if it isn't, put that node in difference.
-		for node in untouched_tree_nodes:
-			if !touched_tree_nodes.has(node):
-				difference.append(node)
-		#with the difference, uncarve all tiles in difference
-		for node in difference:
-			proxy.uncarve_all(node)
-#endregion
+
+	#if tree_clean_up == true:
+	##create a tree, find every leaf
+	##remove every leaf (BUT THE EXIT)
+		#var iteration_count = 0
+		#var start_tile = $MazeryExtraData.start_tile
+		#var untouched_maze_tree = await max_tree_from_here_but_directed_tho(start_tile)
+		#var maze_tree = await max_tree_from_here_but_directed_tho(start_tile)
+		#print(maze_tree.my_graph)
+		#print("I have this many leaves: ",maze_tree.get_all_leaves())
+		#for leaf in maze_tree.get_all_leaves():
+			#set_cell(leaf,2,Vector2i(1,0))
+		#while(maze_tree.get_all_leaves().size() > 1 and iteration_count <simplcity):
+			##the reason for 1 is that we need the exit leaf, it is always a leaf
+			##print("num leaves: ",maze_tree.get_all_leaves().size())
+			#var all_leaves = maze_tree.get_all_leaves()
+			#for leaf in maze_tree.get_all_leaves():
+				#set_cell(leaf,2,Vector2i(3,0))
+				#await get_tree().create_timer(0.001).timeout
+			#for leaf in all_leaves:
+				#if leaf != $MazeryExtraData.end_tile:
+					#maze_tree.prune(leaf)
+			#iteration_count += 1
+		#for node in maze_tree.get_all_nodes_as_list():
+			#var num_connections = maze_tree.fetch_arb_node(node).size()
+			#match num_connections:
+				#1:
+					#set_cell(node,2,Vector2i(0,1))
+				#2:
+					#set_cell(node,2,Vector2i(1,1))
+				#3:
+					#set_cell(node,2,Vector2i(2,1))
+				#4:
+					#set_cell(node,2,Vector2i(3,1))
+				#_:
+					#print("this node thinks he is special")
+					#print(node)
+					#print(maze_tree.fetch_arb_node(node))
+					#print(num_connections)
+			#pass
+		##take the difference between untouched and touch
+		#var difference = []
+		#var untouched_tree_nodes = untouched_maze_tree.get_all_nodes_as_list()
+		#var touched_tree_nodes = maze_tree.get_all_nodes_as_list()
+		##for every element in the larger array, check if it is NOT in smaller array
+		##if it isn't, put that node in difference.
+		#for node in untouched_tree_nodes:
+			#if !touched_tree_nodes.has(node):
+				#difference.append(node)
+		##with the difference, uncarve all tiles in difference
+		#for node in difference:
+			#proxy.uncarve_all(node)
+##endregion
 
 func max_tree_from_here(start):
 	var killer_tree = Tree_graph.new(start)
@@ -772,29 +759,29 @@ func max_tree_from_here(start):
 		#await get_tree().create_timer(0.01).timeout
 	return killer_tree
 
-func max_tree_from_here_but_directed_tho(start):
-	var killer_tree = Directed_tree.new(start)
-	#begin to do a depth first search
-	var visited = []
-	var new = killer_tree.get_all_nodes_as_list()
-	#print("working")
-	while !new.is_empty():
-		var node = new.pop_front()
-		visited.append(node)
-		set_cell(node,2,Vector2i(0,0))
-		for dir in DIRECTIONS:
-			var neighbor = node + DIRECTIONS.get(dir)
-			#has to allow connection to already in tree nodes.
-			#the only distinction is that the asked neighbor must NOT be in the node's neighbor list already
-			if (!visited.has(neighbor) and inbounds(neighbor) and (proxy.connected_to_cell(node,dir)) and !new.has(neighbor)) or (node == $MazeryExtraData.start_tile and !new.has(neighbor) and !visited.has(neighbor) and inbounds(neighbor)) or (neighbor == $MazeryExtraData.end_tile):
-				#its new
-				new.append(neighbor)
-				killer_tree.add_node(node,neighbor)
-			#elif(visited.has(neighbor) and inbounds(neighbor) and inbounds(node) and proxy.connected_to_cell(node,dir) and !killer_tree.fetch_arb_node(neighbor).has(node)):
+#func max_tree_from_here_but_directed_tho(start):
+	#var killer_tree = Directed_tree.new(start)
+	##begin to do a depth first search
+	#var visited = []
+	#var new = killer_tree.get_all_nodes_as_list()
+	##print("working")
+	#while !new.is_empty():
+		#var node = new.pop_front()
+		#visited.append(node)
+		#set_cell(node,2,Vector2i(0,0))
+		#for dir in DIRECTIONS:
+			#var neighbor = node + DIRECTIONS.get(dir)
+			##has to allow connection to already in tree nodes.
+			##the only distinction is that the asked neighbor must NOT be in the node's neighbor list already
+			#if (!visited.has(neighbor) and inbounds(neighbor) and (proxy.connected_to_cell(node,dir)) and !new.has(neighbor)) or (node == $MazeryExtraData.start_tile and !new.has(neighbor) and !visited.has(neighbor) and inbounds(neighbor)) or (neighbor == $MazeryExtraData.end_tile):
+				##its new
+				#new.append(neighbor)
 				#killer_tree.add_node(node,neighbor)
-				#set_cell(node,2,Vector2i(2,0))
-		#await get_tree().create_timer(0.01).timeout
-	return killer_tree
+			##elif(visited.has(neighbor) and inbounds(neighbor) and inbounds(node) and proxy.connected_to_cell(node,dir) and !killer_tree.fetch_arb_node(neighbor).has(node)):
+				##killer_tree.add_node(node,neighbor)
+				##set_cell(node,2,Vector2i(2,0))
+		##await get_tree().create_timer(0.01).timeout
+	#return killer_tree
 
 func killer_orphans(killer_tree):
 	for pair in killer_tree.get_all_nodes_as_list():
@@ -932,44 +919,82 @@ func proxy_to_tile_map_layer(this_set):
 				set_cell(Vector2i(cell,row),what_set.get(this_set),Vector2i(EW,NS))
 	pass
 
-func remove_redundent():
-	var notNegOne = []
+#func remove_redundent():
+	#
+	##check:
+	##if N block is carved, 
+	##all neighbors are carved, 
+	##and it and all neighbors belong to same block
+	#
+	#var notNegOne = []
+	#for row in blocks.myMatrix.size(): #this is Y
+		#for cell in blocks.myMatrix[0].size(): #this is X
+			##print(row, " ", cell)
+			#if(blocks.getpoint(Vector2i(cell,row)) != -1):
+				#notNegOne.append(Vector2i(cell,row))
+	#var notBoarder = []
+	#var Boarder = []
+	#for cell in notNegOne:
+		##if blocks.inbound(cell) == true:
+			##notBoarder.append(cell)
+		#for dir in DIRECTIONS:
+			##print(dir)
+			#var neighbor = cell + DIRECTIONS.get(dir)
+			#if(not(inbounds(neighbor))):
+				#Boarder.append(cell)
+#
+	##region filter boarder from notNegOne
+	#for cell in notNegOne:
+		#if(not(Boarder.has(cell))):
+			#notBoarder.append(cell)
+	##endregion
+#
+	#var toRemove = []
+	#for cell in notBoarder:
+		#var edge = true
+		#for dir in DIRECTIONS:
+			##print(dir)
+			#var neighbor = cell + DIRECTIONS.get(dir)
+			#if not(blocks.getpoint(cell) == blocks.getpoint(neighbor)):
+				#edge = false
+		#if (edge == true):
+			#toRemove.append(cell)
+	#for cell in toRemove:
+		#for dir in DIRECTIONS:
+			#proxy.uncarve(cell,dir)
+		#set_cell(cell,1,Vector2i(0,7))
+		
+func remove_redundant_new():
+	#check:
+	#if N block is carved, 
+	#all neighbors are carved, 
+	#and it and all neighbors belong to same block
+	var coord_connections = {}
 	for row in blocks.myMatrix.size(): #this is Y
 		for cell in blocks.myMatrix[0].size(): #this is X
-			#print(row, " ", cell)
-			if(blocks.getpoint(Vector2i(cell,row)) != -1):
-				notNegOne.append(Vector2i(cell,row))
-	var notBoarder = []
-	var Boarder = []
-	for cell in notNegOne:
-		#if blocks.inbound(cell) == true:
-			#notBoarder.append(cell)
-		for dir in DIRECTIONS:
-			#print(dir)
-			var neighbor = cell + DIRECTIONS.get(dir)
-			if(not(inbounds(neighbor))):
-				Boarder.append(cell)
+			coord_connections[Vector2i(cell,row)] = proxy.getpoint(Vector2i(cell,row)).count(true)
+	
+#print([1, 4, 5, 8].filter(func(number): return number % 2 == 0))
 
-	#region filter boarder from notNegOne
-	for cell in notNegOne:
-		if(not(Boarder.has(cell))):
-			notBoarder.append(cell)
-	#endregion
-
-	var toRemove = []
-	for cell in notBoarder:
-		var edge = true
-		for dir in DIRECTIONS:
-			#print(dir)
-			var neighbor = cell + DIRECTIONS.get(dir)
-			if not(blocks.getpoint(cell) == blocks.getpoint(neighbor)):
-				edge = false
-		if (edge == true):
-			toRemove.append(cell)
-	for cell in toRemove:
-		for dir in DIRECTIONS:
-			proxy.uncarve(cell,dir)
-		set_cell(cell,1,Vector2i(0,7))
+	#get all the keys that are associated with 4
+	#while your at it ensure they are carved; dumbass the above already does this
+	var filtered_keys = []
+	for key in coord_connections.keys():
+		if coord_connections.get(key) == 4:
+			filtered_keys.append(key)
+	
+	var eliminate = []
+	for key in filtered_keys:
+		var keys_block = blocks.getpoint(key)
+		var neighbors = [key + DIRECTIONS.get("N"),key + DIRECTIONS.get("S"),key + DIRECTIONS.get("E"),key + DIRECTIONS.get("W")]
+		#asking: if any of the neighbors are NOT in the same block as the key (coord pair) ignore
+		if neighbors.any(func(bor): return !(blocks.getpoint(bor) == keys_block)):
+			pass
+		else:
+			eliminate.append(key)
+	
+	for key in eliminate:
+		proxy.uncarve_all(key)
 
 func tile_discriminator():
 	for row in proxy.myMatrix.size(): #this is Y
@@ -983,10 +1008,10 @@ func tile_discriminator():
 			elif(data[0] and not(data[1]) and not(data[2]) and data[3]) or (data[0] and not(data[1]) and data[2] and not(data[3])) or (not(data[0]) and data[1] and not(data[2]) and data[3]) or (not(data[0]) and data[1] and data[2] and not(data[3])):
 				hallwayCorner.append(Vector2i(cell,row))
 				set_cell(Vector2i(cell,row),1,Vector2i(6,0))
-			elif((not(data[0]) and data[1] and data[2] and data[3]) or (data[0] and not(data[1]) and data[2] and data[3]) or (data[0] and data[1] and not(data[2]) and data[3]) or (data[0] and data[1] and data[2] and not(data[3]))):
+			elif(data.count(true) == 3):
 				tJunction.append(Vector2i(cell,row))
 				set_cell(Vector2i(cell,row),1,Vector2i(7,0))
-			elif(data[0] and data[1] and data[2] and data[3]):
+			elif(data.count(true) == 4):
 				crossing.append(Vector2i(cell,row))
 				set_cell(Vector2i(cell,row),1,Vector2i(5,1))
 			elif(data.count(true) == 1):
@@ -1005,70 +1030,70 @@ func killer_corner_duos():
 				proxy.uncarve_all(corner)
 				proxy.uncarve_all(neighbor)
 
-func killer_hallway_love_handles():
-	var hallway_count = hallways.size()
-	var previous_hallway_count = -1
-	while(hallway_count != previous_hallway_count):
-		for hall in hallways:
-			#figure out facing direction
-			#only two possibilities:
-				#[1100]
-				#[0011]
-			#from there eliminate the polarized neighbors
-			var facing = -1
-			if proxy.getpoint(hall)[0] == true: #check north
-				facing = "N"
-			else: #assume east west
-				facing = "E"
-			var polarizeddir = POLARIZED.get(facing) 
-			for dir in polarizeddir:
-				var neighbor = hall + DIRECTIONS.get(dir)
-				if inbounds(neighbor):
-					proxy.uncarve_all(neighbor)
-		dump_old_class()
-		tile_discriminator()
-		previous_hallway_count = hallway_count
-		hallway_count = hallways.size()
-		#print("working...")
-		#print(previous_hallway_count, " ", hallway_count)
-
-func killer_crossings_splitter():
-	#blocks.printMe()
-	for X in crossing:
-		#get all X neighbor
-		#remove neighbors that are:
-		#NOT in the same block map block (this should remove at most 1 usually.
-		#then find out what classes those neighbors are
-		#if the neighbors ARE NOT 2 hallway corners and 1 T junction: DO NOTHING
-		#else: random num from 0 to 1
-		#if random num = 0: uncarve T juntion
-		#else: uncarve both hallway corners
-		
-		#new method
-		#get all X neighbors
-		#figure out which direction the non-sharing block num is
-		#from there assign the rest of the neighbors as "front" "left" "right"
-			#NOTE: front is removed alone, left and right are removed *together
-		#get a random number 0 to 1
-		#if rand number is 0:  uncarve the front neighbor #WARNING: this could cause a total maze seperation
-		#if rand number is 1: uncarve left and right neighbors only if it is a coners, if only one is uncarved that is fine
-		var non_fitting_direction
-		for dir in DIRECTIONS:
-			if blocks.getpoint(X + DIRECTIONS.get(dir)) != blocks.getpoint(X):
-				non_fitting_direction = dir
-		var dir_neighbors = {}
-		dir_neighbors.set(OPPOSITES.get(non_fitting_direction), X + DIRECTIONS.get(OPPOSITES.get(non_fitting_direction)))
-		dir_neighbors.set(POLARIZED.get(non_fitting_direction)[0], X + DIRECTIONS.get(POLARIZED.get(non_fitting_direction)[0]))
-		dir_neighbors.set(POLARIZED.get(non_fitting_direction)[1], X + DIRECTIONS.get(POLARIZED.get(non_fitting_direction)[1]))
-		if randi_range(0,1) == 0:
-			proxy.uncarve_all(dir_neighbors.get(OPPOSITES.get(non_fitting_direction)))
-		else:
-			if hallwayCorner.has(dir_neighbors.get(POLARIZED.get(non_fitting_direction)[0])):
-				proxy.uncarve_all(dir_neighbors.get(POLARIZED.get(non_fitting_direction)[0]))
-			if hallwayCorner.has(dir_neighbors.get(POLARIZED.get(non_fitting_direction)[1])):
-				proxy.uncarve_all(dir_neighbors.get(POLARIZED.get(non_fitting_direction)[1]))
+#func killer_hallway_love_handles():
+	#var hallway_count = hallways.size()
+	#var previous_hallway_count = -1
+	#while(hallway_count != previous_hallway_count):
+		#for hall in hallways:
+			##figure out facing direction
+			##only two possibilities:
+				##[1100]
+				##[0011]
+			##from there eliminate the polarized neighbors
+			#var facing = -1
+			#if proxy.getpoint(hall)[0] == true: #check north
+				#facing = "N"
+			#else: #assume east west
+				#facing = "E"
+			#var polarizeddir = POLARIZED.get(facing) 
+			#for dir in polarizeddir:
+				#var neighbor = hall + DIRECTIONS.get(dir)
+				#if inbounds(neighbor):
+					#proxy.uncarve_all(neighbor)
 		#dump_old_class()
 		#tile_discriminator()
+		#previous_hallway_count = hallway_count
+		#hallway_count = hallways.size()
+		##print("working...")
+		##print(previous_hallway_count, " ", hallway_count)
+#
+#func killer_crossings_splitter():
+	##blocks.printMe()
+	#for X in crossing:
+		##get all X neighbor
+		##remove neighbors that are:
+		##NOT in the same block map block (this should remove at most 1 usually.
+		##then find out what classes those neighbors are
+		##if the neighbors ARE NOT 2 hallway corners and 1 T junction: DO NOTHING
+		##else: random num from 0 to 1
+		##if random num = 0: uncarve T juntion
+		##else: uncarve both hallway corners
+		#
+		##new method
+		##get all X neighbors
+		##figure out which direction the non-sharing block num is
+		##from there assign the rest of the neighbors as "front" "left" "right"
+			##NOTE: front is removed alone, left and right are removed *together
+		##get a random number 0 to 1
+		##if rand number is 0:  uncarve the front neighbor #WARNING: this could cause a total maze seperation
+		##if rand number is 1: uncarve left and right neighbors only if it is a coners, if only one is uncarved that is fine
+		#var non_fitting_direction
+		#for dir in DIRECTIONS:
+			#if blocks.getpoint(X + DIRECTIONS.get(dir)) != blocks.getpoint(X):
+				#non_fitting_direction = dir
+		#var dir_neighbors = {}
+		#dir_neighbors.set(OPPOSITES.get(non_fitting_direction), X + DIRECTIONS.get(OPPOSITES.get(non_fitting_direction)))
+		#dir_neighbors.set(POLARIZED.get(non_fitting_direction)[0], X + DIRECTIONS.get(POLARIZED.get(non_fitting_direction)[0]))
+		#dir_neighbors.set(POLARIZED.get(non_fitting_direction)[1], X + DIRECTIONS.get(POLARIZED.get(non_fitting_direction)[1]))
+		#if randi_range(0,1) == 0:
+			#proxy.uncarve_all(dir_neighbors.get(OPPOSITES.get(non_fitting_direction)))
+		#else:
+			#if hallwayCorner.has(dir_neighbors.get(POLARIZED.get(non_fitting_direction)[0])):
+				#proxy.uncarve_all(dir_neighbors.get(POLARIZED.get(non_fitting_direction)[0]))
+			#if hallwayCorner.has(dir_neighbors.get(POLARIZED.get(non_fitting_direction)[1])):
+				#proxy.uncarve_all(dir_neighbors.get(POLARIZED.get(non_fitting_direction)[1]))
+		##dump_old_class()
+		##tile_discriminator()
 
 func attaching_enterance_or_exit(exit_or_enterance: bool,face : String):
 	'''enterance is 0, exit is 1'''
@@ -1262,7 +1287,6 @@ func attaching_enterance_or_exit(exit_or_enterance: bool,face : String):
 		elif exit_or_enterance == true:
 			put_something_here_please.emit(spout_vect, Vector2i(4,2))
 	pass
-
 
 func _on_exit_zone_body_entered(body : Node):
 	if not(body.is_in_group("player")):
