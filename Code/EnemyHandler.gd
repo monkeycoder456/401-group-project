@@ -12,8 +12,8 @@ var the_maze : Node
 @export var zombie_path = preload("res://scenes/zombie.tscn")
 @export var zombieMaster_path = preload("res://scenes/zombieMaster.tscn")
 
-@export var mummy_small := 2
-@export var mummy_long := 7
+@export var mummy_small := 8
+@export var mummy_long := 16
 # 0 5 3 10 1
 var ENEMY_RATIO = {"mummy": 1, "vampire": 5, "warewolf": 3, "zombie": 10, "zombieMaster": 1}
 var ENEMY_FETCH = {"mummy":mummy_path,"vampire":vampire_path,"warewolf":warewolf_path,"zombie":zombie_path,"zombieMaster":zombieMaster_path}
