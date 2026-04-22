@@ -121,15 +121,10 @@ my_seed = 666
 debug_switch = true
 remove_brother_surrounded = false
 remove_brother_corners = false
-remove_hallway_surrounded = false
-crossings_to_other = false
 remove_orphans = false
-pitty_connections = false
-clean_up_crossings = false
-tree_clean_up = false
 enter_side_set = "W"
 exit_side_set = "E"
-shape_set = "graveyard"
+shape_set = "woods"
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=225362705]
 position = Vector2(1000, 0)
