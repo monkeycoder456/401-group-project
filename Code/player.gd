@@ -3,6 +3,14 @@ class_name Player extends GenericMazeEntity
 var lastDirection := Vector2.RIGHT
 var dead := false
 
+var slow_pentalty_ticks = 0
+var slow_penalty_maximum = 100
+var slow_penalty_reduction = 1
+var slow_penalty_recieve = 20
+var base_move_speed = 150
+
+@export var darken_from_slow : Curve
+
 signal Im_dead
 
 func _ready():
@@ -18,15 +26,30 @@ func _ready():
 
 
 func _physics_process(delta):
+	print("move speed ", move_speed, " penalty as of now ",slow_pentalty_ticks)
 	#take input
 	#correct the input based on the hallway
 	#make that the target
 	#do the bog standard shit every entity does to move
 	
 	#this approach will unify behavior among the classes
+	
+	#as the player slows down, he should become more purple.
+	self.modulate = Color(1.0,1.0 - float(slow_pentalty_ticks) / 100.0, 1.0, 1.0)
 
 	if dead:
 		return
+	
+	
+	if slow_pentalty_ticks > 0:
+		#mummy has incurred penalty, slow down player.
+		#player slow down will be in relation to how high penalty is
+		#up to 50 (half) speed reduction
+		move_speed = base_move_speed - slow_pentalty_ticks
+		#reduce slow penalty as time goes
+		slow_pentalty_ticks = max(0,slow_pentalty_ticks - slow_penalty_reduction)
+	else:
+		move_speed = base_move_speed
 	
 	global_position = global_position.move_toward(target_position ,move_speed * delta)
 	if global_position.distance_to(target_position) < 1:
@@ -178,3 +201,7 @@ func getting_new_targ():
 		return Vector2i(0,0)
 	#var directions = 
 	#pass
+
+func give_speed_penalty():
+	print("ouch, speed reduction")
+	slow_pentalty_ticks = min(slow_pentalty_ticks + slow_penalty_recieve, slow_penalty_maximum)

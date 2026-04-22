@@ -97,3 +97,10 @@ func _extend(front_previous_cell,front_seg_num):
 	create_new_seg.emit(old_position,my_seg_num)
 	how_long_are_we.emit(mum_length)
 	has_tail = true
+
+
+func _on_area_2d_body_entered(body:Node):
+	if body.is_in_group("player"):
+		#player touched give player speed reduction penalty
+		print("giving player speed penalty")
+		body.give_speed_penalty()
