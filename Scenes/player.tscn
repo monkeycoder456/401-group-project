@@ -1,7 +1,11 @@
 [gd_scene format=3 uid="uid://da71n3iob45to"]
 
 [ext_resource type="Texture2D" uid="uid://dkla8ddovmfqa" path="res://resources/debug Characters.png" id="1_3vyb7"]
-[ext_resource type="Script" uid="uid://cl8s1hn0iyy6c" path="res://not mine files/playerSussy.gd" id="1_g2els"]
+[ext_resource type="Script" uid="uid://cl8s1hn0iyy6c" path="res://code/player.gd" id="1_g2els"]
+
+[sub_resource type="Curve" id="Curve_g2els"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_u8vuu"]
 size = Vector2(12, 11.5)
@@ -135,6 +139,7 @@ animations = [{
 
 [node name="player" type="CharacterBody2D" unique_id=28675795]
 script = ExtResource("1_g2els")
+darken_from_slow = SubResource("Curve_g2els")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1677883216]
 position = Vector2(0, -2)
