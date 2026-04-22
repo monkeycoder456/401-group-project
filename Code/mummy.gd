@@ -17,9 +17,9 @@ var wrapsScene = preload("res://scenes/wraps.tscn")
 var sarcScene = preload("res://scenes/sarc.tscn")
 
 func _ready():
-	#print("as a mummy I am waiting")
+	print("as a mummy I am waiting")
 	await super._ready()
-	#print("finished waiting as mummy")
+	print("finished waiting as mummy")
 	#current_cell = Vector2i(0,0)
 	target_position = tilemap.map_to_local(current_cell)
 	randomize()

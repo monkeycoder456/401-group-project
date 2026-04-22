@@ -103,7 +103,7 @@ func _ready():
 	#DEADLINE IS APPROACHING!!!
 	
 	#_create_patterns()
-	
+	z_index = -5
 	#print("I have entered scene tree: maze")
 	if my_seed == 0:
 		var new_seed  = randi_range(0,1000)
@@ -1303,6 +1303,11 @@ func _on_exit_zone_body_entered(body : Node):
 		shape_set = ["woods","graveyard","house"].pick_random()
 		set_modulate(Color(1.0, 1.0, 1.0, 1.0))
 
-	
+
+func _toggle_exit(open : bool):
+	#this will turn on or off detection for the exit (aka goal)
+	$exit_zone.monitoring = open
+	pass
+
 	#NOTE:
 	#here would go all the signals and alerts to the UI

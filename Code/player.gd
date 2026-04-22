@@ -9,11 +9,10 @@ var slow_penalty_reduction = 1
 var slow_penalty_recieve = 20
 var base_move_speed = 150
 
-@export var darken_from_slow : Curve
-
 signal Im_dead
 
 func _ready():
+	self.z_index = 10
 	move_speed = 150
 	print("player wait")
 	current_cell = await get_parent().spawn_player
@@ -26,7 +25,7 @@ func _ready():
 
 
 func _physics_process(delta):
-	print("move speed ", move_speed, " penalty as of now ",slow_pentalty_ticks)
+	#print("move speed ", move_speed, " penalty as of now ",slow_pentalty_ticks)
 	#take input
 	#correct the input based on the hallway
 	#make that the target
@@ -35,7 +34,7 @@ func _physics_process(delta):
 	#this approach will unify behavior among the classes
 	
 	#as the player slows down, he should become more purple.
-	self.modulate = Color(1.0,1.0 - float(slow_pentalty_ticks) / 100.0, 1.0, 1.0)
+	self.modulate = Color(1.0 - float(slow_pentalty_ticks) / 100.0, 1.0 - float(slow_pentalty_ticks) / 100.0, 1.0 - float(slow_pentalty_ticks) / 100.0, 1.0)
 
 	if dead:
 		return
