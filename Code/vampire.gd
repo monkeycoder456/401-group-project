@@ -1,4 +1,5 @@
-class_name vampire extends GenericMazeEntity
+class_name vampire
+extends GenericMazeEntity
 
 
 @export var player: CharacterBody2D
@@ -9,6 +10,9 @@ var path: Array[Vector2i] = []
 var path_index := 0
 var timer := 0.0
 var has_killed := false
+
+var fear_source = null
+var is_feared = false
 
 
 func _ready():
@@ -30,9 +34,6 @@ func _physics_process(delta):
 	super._physics_process(delta)
 
 	_check_player_collision()
-
-	#if has_killed:
-		#return
 
 	timer += delta
 
@@ -126,6 +127,11 @@ func _bfs(start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
 
 func _follow_path():
 
+	if is_feared and fear_source != null:
+		var dir = _normalize_dir(current_cell - tilemap.local_to_map(fear_source.global_position))
+		move_in_direction(dir)
+		return
+
 	if path.is_empty():
 		return
 
@@ -150,11 +156,18 @@ func _normalize_dir(dir: Vector2i) -> Vector2i:
 
 func _check_player_collision():
 
-	if has_killed:
-		return
-
 	var player_cell = tilemap.local_to_map(player.global_position)
 
 	if current_cell == player_cell:
 		has_killed = true
 		player.player_die()
+
+
+func enter_fear_mode(source):
+	is_feared = true
+	fear_source = source
+
+
+func exit_fear_mode():
+	is_feared = false
+	fear_source = null
