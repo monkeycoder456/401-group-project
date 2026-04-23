@@ -20,7 +20,10 @@ var junk = [] #reperesented with question mark
 
 @export var simplcity := 2
 '''the above variable is for how many times the tree cleaner will slim the maze down'''
-@export var danger_value := 10
+var init_danger_value := 5
+var rounds_until_increment = 3
+var round_num = 0
+@export var danger_value := 5
 @export var my_seed : int
 @export var debug_switch := false
 @export var remove_brother_surrounded := true
@@ -89,6 +92,10 @@ signal spawn_items
 signal spawn_player
 signal clearing
 signal player_handler
+
+#initial danger value
+#danger value rounds until increment
+
 
 func _ready():
 	#NOTE: you must make all patterns by hand :skull:
@@ -1296,8 +1303,11 @@ func _on_exit_zone_body_entered(body : Node):
 		set_modulate(Color(0.317, 0.715, 0.0, 1.0))
 		clearing.emit()
 		await get_tree().create_timer(2).timeout
-		
-		danger_value += 1
+
+		round_num += 1
+		if (rounds_until_increment == round_num):
+			round_num = 0
+			danger_value += 1
 		_make_me_maze_again(enter_side_set,exit_side_set)
 		
 		shape_set = ["woods","graveyard","house"].pick_random()
