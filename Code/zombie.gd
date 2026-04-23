@@ -20,6 +20,9 @@ var recalc_timer := 0.0
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 var last_move_dir := Vector2i.DOWN
 
+var fear_source = null
+var is_feared = false
+
 
 func _ready():
 	await super._ready()
@@ -60,6 +63,39 @@ func _physics_process(delta):
 
 	if player == null:
 		return
+
+	if is_feared and fear_source != null:
+		if not is_moving():
+			var dirs = _get_available_dirs()
+			if dirs.is_empty():
+				return
+
+			var best_dir = dirs[0]
+			var best_distance = -1
+
+			for dir in dirs:
+				var next_cell = current_cell + dir
+				var pos = tilemap.map_to_local(next_cell)
+				var dist = pos.distance_to(fear_source.global_position)
+
+				if dist > best_distance:
+					best_distance = dist
+					best_dir = dir
+
+			if move_in_direction(best_dir):
+				last_move_dir = best_dir
+				_update_animation(best_dir)
+			else:
+				dirs.erase(best_dir)
+				dirs.erase(-best_dir)
+				dirs.shuffle()
+				for alt_dir in dirs:
+					if move_in_direction(alt_dir):
+						last_move_dir = alt_dir
+						_update_animation(alt_dir)
+						break
+		return
+
 	if moving:
 		var dir = (target_position - global_position).normalized()
 		velocity = dir * move_speed
@@ -80,8 +116,6 @@ func _physics_process(delta):
 	else:
 		_wander_logic()
 
-	
-
 
 func _wander_logic():
 
@@ -90,6 +124,7 @@ func _wander_logic():
 
 	move_timer = 0.0
 	_start_wander()
+
 
 func _start_wander():
 
@@ -110,6 +145,16 @@ func _start_wander():
 	if move_in_direction(dir):
 		last_move_dir = dir
 		_update_animation(dir)
+	else:
+		dirs.erase(dir)
+		dirs.erase(-dir)
+		dirs.shuffle()
+		for alt_dir in dirs:
+			if move_in_direction(alt_dir):
+				last_move_dir = alt_dir
+				_update_animation(alt_dir)
+				break
+
 
 func _alert_logic(delta):
 
@@ -147,6 +192,16 @@ func _follow_path():
 		path_index += 1
 		_update_animation(dir)
 	else:
+		var dirs = _get_available_dirs()
+		dirs.erase(dir)
+		dirs.erase(-dir)
+		dirs.shuffle()
+		for alt_dir in dirs:
+			if move_in_direction(alt_dir):
+				last_move_dir = alt_dir
+				path_index += 1
+				_update_animation(alt_dir)
+				return
 		_recalculate_path()
 
 
@@ -271,6 +326,7 @@ func _update_animation(dir: Vector2i):
 			sprite.play("right")
 	print(sprite.animation)
 
+
 func _normalize_dir(dir: Vector2i) -> Vector2i:
 
 	if abs(dir.x) > abs(dir.y):
@@ -298,4 +354,14 @@ func alert_to_player(player_cell: Vector2i):
 	path_index = 0
 	
 	_update_animation(last_move_dir)
-	
+
+
+func enter_fear_mode(source):
+	is_feared = true
+	fear_source = source
+	alerted = false
+
+
+func exit_fear_mode():
+	is_feared = false
+	fear_source = null
